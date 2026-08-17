@@ -1,0 +1,4 @@
+---
+title: "Entity"
+bookCollapseSection: true
+---
