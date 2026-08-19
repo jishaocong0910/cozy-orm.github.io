@@ -8,12 +8,12 @@ theme = 'hugo-book'
 label = "English"
 contentDir = "content.en"
 weight = 1
-title = "My Tech Docs"
+title = "CozyORM"
 [languages.zh]
 label = "简体中文"
 contentDir = "content.zh"
 weight = 2
-title = "我的技术文档"
+title = "CozyORM"
 
 [params]
 bookToC = true
