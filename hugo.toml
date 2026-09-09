@@ -17,3 +17,4 @@ title = "CozyORM"
 
 [params]
 bookToC = true
+BookTheme = 'ayu-light'
