@@ -1,6 +1,6 @@
 baseURL = 'https://example.org/'
 locale = 'en-us'
-title = 'AAA'
+title = 'CozyORM'
 theme = 'hugo-book'
 
 [languages]
@@ -21,4 +21,6 @@ BookTheme = 'ayu-light'
 
 [markup]
 [markup.highlight]
-style = 'friendly'
+style = 'catppuccin-latte'
+
+

@@ -11,7 +11,7 @@ weight: 2
 go get github.com/jishaocong0910/cozy-orm
 ```
 
-## 基础API
+## 基础执行方法
 
 ```go
 package main
@@ -29,10 +29,10 @@ import (
 type User struct {
 	Id       *int64 `orm:"pk,auto"`
 	Name     *string
+	Email    *string
+	Phone    *string
 	Age      *int32
 	Address  *string
-	Phone    *string
-	Email    *string
 	Status   *int8
 	Level    *int8
 	CreateAt *time.Time
@@ -54,17 +54,17 @@ func main() {
 	// insert
 	u := &User{
 		Name:     new("Alice"),
+		Email:    new("example@email.com"),
+		Phone:    new("123456789"),
 		Age:      new(int32(20)),
 		Address:  new("anytown"),
-		Phone:    new("123456789"),
-		Email:    new("demo@email.com"),
 		Status:   new(int8(1)),
 		Level:    new(int8(0)),
 		CreateAt: new(time.Now()),
 	}
 	affected, err := db.Mutation(nil).MapTarget[User](u).BuildSql(func(b *orm.SqlBuilder) {
-		b.Write("INSERT INTO user(name, age, address, phone, email, status, level, create_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-			u.Name, u.Age, u.Address, u.Phone, u.Email, u.Status, u.Level, u.CreateAt)
+		b.Write("INSERT INTO user(name, email, phone, age, address, status, level, create_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+			u.Name, u.Email, u.Phone, u.Age, u.Address, u.Status, u.Level, u.CreateAt)
 	}).Do()
 	if err != nil {
 		panic(err)
@@ -83,7 +83,7 @@ func main() {
 
 	// update
 	affected, err = db.Mutation(nil).BuildSql(func(b *orm.SqlBuilder) {
-		b.Write("UPDATE user SET phone = ?, status = ? WHERE id = ?", "987654321", 2, u.Id)
+		b.Write("UPDATE user SET status = ?, level = ? WHERE id = ?", 2, 1, u.Id)
 	}).Do()
 	if err != nil {
 		panic(err)
@@ -101,7 +101,7 @@ func main() {
 }
 ```
 
-## 高级API
+## 高级执行方法
 
 ```go
 package main
@@ -144,10 +144,10 @@ func main() {
 	// insert
 	u := &User{
 		Name:     new("Alice"),
+		Email:    new("example@email.com"),
+		Phone:    new("123456789"),
 		Age:      new(int32(20)),
 		Address:  new("anytown"),
-		Phone:    new("123456789"),
-		Email:    new("demo@email.com"),
 		Status:   new(int8(1)),
 		Level:    new(int8(0)),
 		CreateAt: new(time.Now()),
@@ -169,8 +169,8 @@ func main() {
 	// update
 	u3 := &User{
 		Id:     u.Id,
-		Phone:  new("987654321"),
 		Status: new(int8(2)),
+		Level:  new(int8(1)),
 	}
 	affected, err = db.Update[User](nil).Entity(u3).Do()
 	if err != nil {
