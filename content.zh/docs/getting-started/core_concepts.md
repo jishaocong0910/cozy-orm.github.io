@@ -1,9 +1,27 @@
 ---
 title: 核心概念
-weight: 3
+weight: 2
 ---
 
 # 核心概念
+
+## DB实例
+
+DB实例即`orm.DbInst`类型的变量，用于对绑定的数据库进行操作。通过`orm.DbInstConfig`指定配置参数并调用`Build`方法创建。
+
+*Example*
+
+```go
+sqlDB, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+if err != nil {
+    panic(err)
+}
+
+db := orm.DbInstConfig{
+    SqlDB:  sqlDB,
+    DbType: orm.DbType_.MySQL,
+}.Build()
+```
 
 ## 实体
 
@@ -21,7 +39,7 @@ type User struct {
 
 ## 执行方法
 
-CozyORM通过`github.com/jishaocong0910/cozy-orm/orm.DB`类型的提供的方法执行SQL操作数据库，这些方法称为**执行方法**并且分为**基础执行方法**和**高级执行方法**。**基础执行方法**通过自定义 SQL 语句执行数据库操作，具有更高的通用性。**高级执行方法**则对常用功能进行封装，自动生成 SQL 并执行，例如分页查询、批量更新、软删除等。
+CozyORM通过`orm.DbInst`类型提供的方法执行SQL操作数据库，这些方法称为**执行方法**并且分为**基础执行方法**和**高级执行方法**。**基础执行方法**通过自定义 SQL 语句执行数据库操作，具有更高的通用性。**高级执行方法**则对常用功能进行封装，自动生成 SQL 并执行，例如分页查询、批量更新、软删除等。
 
 *基础执行方法*
 

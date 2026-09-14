@@ -1,6 +1,6 @@
 ---
 title: 快速开始
-weight: 2
+weight: 1
 ---
 
 # 快速开始
