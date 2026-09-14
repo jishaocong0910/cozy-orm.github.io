@@ -1,5 +1,5 @@
 ---
-title: 数据库连接
+title: 配置
 weight: 2
 bookFlatSection: true
 ---
