@@ -46,7 +46,7 @@ func main() {
 	}
 
 	// create a orm.DB
-	db := orm.DbConfig{
+	db := orm.DbInstConfig{
 		SqlDB:  sqlDB,
 		DbType: orm.DbType_.MySQL,
 	}.Build()
@@ -136,7 +136,7 @@ func main() {
 	}
 
 	// create a orm.DB
-	db := orm.DbConfig{
+	db := orm.DbInstConfig{
 		SqlDB:  sqlDB,
 		DbType: orm.DbType_.MySQL,
 	}.Build()
