@@ -48,7 +48,7 @@ func main() {
 	// create a orm.DB
 	db := orm.DBConfig{
 		SqlDB:  sqlDB,
-		DbType: orm.DbType_.MySQL,
+		DBType: orm.DBType_.MySQL,
 	}.Build()
 
 	// insert
@@ -138,7 +138,7 @@ func main() {
 	// create a orm.DB
 	db := orm.DBConfig{
 		SqlDB:  sqlDB,
-		DbType: orm.DbType_.MySQL,
+		DBType: orm.DBType_.MySQL,
 	}.Build()
 
 	// insert

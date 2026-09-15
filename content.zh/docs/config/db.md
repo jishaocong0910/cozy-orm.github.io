@@ -5,26 +5,26 @@ weight: 1
 
 # DB配置
 
-## 配置
+## 配置项
 
 `orm.DBConfig`的字段为DB实例的配置项。
 
-| 配置项              | 类型                    | 描述                                                                                                                                                                                         |
-|---------------------|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| SqlDB               | *sql.DB                 | 数据库连接，必填。                                                                                                                                                                           |
-| Logger              | orm.Logger              | 日志记录器，用于打印SQL等日志，详见[[日志]](../logger)。                                                                                                                                     |
-| SqlLogLevel         | orm.SqlLogLevel         | SQL日志级别，通过枚举`orm.Level_`选择，关于枚举见[[枚举]](#枚举)。                                                                                                                           |
-| TabNameMapper       | *orm.NameMapper         | 默认的**实体名->表名**映射规则，默认为转下划线，详见[[名称映射]](#名称映射)。                                                                                                                |
-| ColNameMapper       | *orm.NameMapper         | 默认的**实体字段名->表字段名**映射规则，默认为转下划线，详见[[名称映射]](#名称映射)。                                                                                                        |
-| ParamPrefix         | string                  | 参数占位符，需根据数据库驱动配置，默认值为`?`，可通过指定`DbType`参数快速配置。                                                                                                              |
-| GetGeneratedKeyMode | orm.GetGeneratedKeyMode | 获取生成Key模式，需根据数据库驱动配置，通过枚举`orm.GetGeneratedKeyMode_`选择，或通过指定`DbType`参数快速配置，详见[[获取生成Key模式]](#获取生成Key模式)。                                   |
-| PageMode            | orm.PageMode            | 分页模式，需根据数据库驱动配置，通过枚举`orm.PageMode_`选择，或通过指定`DbType`参数快速配置，详见[[分页模式]](#分页模式)。                                                                   |
-| QuotedIdentifier    | orm.QuotedIdentifier    | 引用标识符，需根据数据库驱动配置，通过枚举`orm.QuotedIdentifier_`选择，或通过指定`DbType`参数快速配置，详见[[引用标识符]](#引用标识符)。                                                     |
-| DbType              | orm.DbType              | 数据库类型，指定后将不再需要配置`ParamPrefix`、`GetGeneratedKeyMode`、`PageMode`、`QuotedIdentifier`参数，通过枚举`orm.DbType_`选择，当前支持MySQL、PostgreSQL、Oracle、SQL Server、SQLite。 |
-| ColumnPolicyConfigs | orm.ColumnPolicyConfigs | 字段策略配置，详见[[字段策略]](../column_policy)。                                                                                                                                           |
+| 配置项              | 类型                    | 描述                                                                                                                                                                                                                    |
+|---------------------|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| SqlDB               | *sql.DB                 | 数据库连接，必填。                                                                                                                                                                                                      |
+| Logger              | orm.Logger              | 日志记录器，用于打印SQL等日志，详见[[日志]](../logger)。                                                                                                                                                                |
+| SqlLogLevel         | orm.SqlLogLevel         | SQL日志级别，通过枚举`orm.Level_`选择，关于枚举见[[枚举]](#枚举)。                                                                                                                                                      |
+| TabNameMapper       | *orm.NameMapper         | 默认的**实体名->表名**映射规则，默认为转小写下划线，见[[名称映射]](#名称映射)。                                                                                                                                         |
+| ColNameMapper       | *orm.NameMapper         | 默认的**实体字段名->表字段名**映射规则，默认为转小写下划线，见[[名称映射]](#名称映射)。                                                                                                                                 |
+| ParamPrefix         | string                  | 参数占位符前缀。不配置或为空字符串时，参数占位符号为`?`，否则为前缀拼接从1开始的递增数字。例如，若前缀为`:`，则参数占位符为`:1`、`:2`、`:3`...，若前缀为`$`，则为`$1`、`$2`、`$3` ...。可通过指定`DBType`参数快速配置。 |
+| GetGeneratedKeyMode | orm.GetGeneratedKeyMode | 获取生成Key模式，通过枚举`orm.GetGeneratedKeyMode_`选择（见[[获取生成Key模式]](#获取生成Key模式)），或通过指定`DBType`参数快速配置。                                                                                    |
+| PageMode            | orm.PageMode            | 分页模式，通过枚举`orm.PageMode_`选择（见[[分页模式]](#分页模式)），或通过指定`DBType`参数快速配置。                                                                                                                    |
+| QuotedIdentifier    | orm.QuotedIdentifier    | 引用标识符，通过枚举`orm.QuotedIdentifier_`选择（见[[引用标识符]](#引用标识符)），或通过指定`DBType`参数快速配置。                                                                                                      |
+| DBType              | orm.DBType              | 数据库类型，指定后将自动适配`ParamPrefix`、`GetGeneratedKeyMode`、`PageMode`和`QuotedIdentifier`参数，通过枚举`orm.DBType_`选择，当前支持MySQL、PostgreSQL、Oracle、SQL Server、SQLite。                                |
+| ColumnPolicyConfigs | orm.ColumnPolicyConfigs | 字段策略配置，详见[[字段策略]](../column_policy)。                                                                                                                                                                      |
 ## 枚举
 
-CozyORM中以下划线结尾的变量为枚举（例如：`orm.DbType_`），其字段为枚举的选项，在IDE中通过`枚举变量.`的方式即可查看所有枚举选项并选择。
+CozyORM中以下划线结尾的变量为枚举（例如：`orm.DBType_`），其字段即为所有枚举选项，方便查看并选择。
 
 > [!TIP]
 > 关于枚举的设计，可查看项目：[https://github.com/jishaocong0910/enum](https://github.com/jishaocong0910/enum)
@@ -61,7 +61,7 @@ func main() {
 
 	db := orm.DBConfig{
 		SqlDB:         sqlDB,
-		DbType:        orm.DbType_.MySQL,
+		DBType:        orm.DBType_.MySQL,
 		TabNameMapper: orm.NewNameMapper().LowerCamelCase().AddPrefix("tb_"),
 	}.Build()ui
 
@@ -73,16 +73,27 @@ func main() {
 
 ## 获取生成Key模式
 
-Go中不同数据库获取生成Key没有标准，原生的`sql.Result.LastInsertId()`不能支持所有数据库，即使支持，在语义上也有所不同。`orm.GetGeneratedKeyMode_`总结了各种获取生成Key的方式，创建`orm.DB`时根据数据库特性选择。有以下选项，其中基础执行方法`orm.DB.Mutation`只支持`FirstInsertId`和`LastInsertId`，高级执行方法`orm.DB.Insert`支持所有，详见[[Mutation]]()[[Insert]]()。
+Go中不同数据库获取生成Key没有标准，原生的`sql.Result.LastInsertId()`不能支持所有数据库，即使支持，在语义上也有所不同。`orm.GetGeneratedKeyMode_`总结了各种获取生成Key的方式，有以下选项，其中基础执行方法`orm.DB.Mutation`只支持`FirstInsertId`和`LastInsertId`，高级执行方法`orm.DB.Insert`支持所有，详见[[Mutation]]()[[Insert]]()。
 
-* `FirstInsertId` 将`sql.Result.LastInsertId()`的返回值作为第一个插入记录的ID，适配数据库例子：MySQL、MariaDB。
-* `LastInsertId` 将`sql.Result.LastInsertId()`的返回值作为最后一个插入记录的ID，适配数据库例子：SQLite。
-* `Returning` 通过`INSERT ... RETURNING ...`返回语法返回自动生成Key，适配数据库例子：PostgreSQL、SQLite。
-* `SQLServer` 通过SQL Server方言`INSERT ... OUTPUT INSERTED.<column> ...`返回自动生成Key。
-* `Oracle` 通过Oracle的方言`INSERT ... RETURNING ... INTO...`返回自动生成Key。
+* `FirstInsertId` 将`sql.Result.LastInsertId()`的返回值作为第一个插入记录的ID，可适配MySQL。
+* `LastInsertId` 将`sql.Result.LastInsertId()`的返回值作为最后一个插入记录的ID，可适配SQLite。
+* `InsertReturning` 通过语法`INSERT ... RETURNING <column_list>`返回自动生成Key，可适配PostgreSQL、SQLite。
+* `SQLServer` 通过SQL Server方言`INSERT ... OUTPUT {INSERTED.<column>} ...`返回自动生成Key，专门适配SQL Server。
+* `Oracle` 通过Oracle的方言`INSERT ... RETURNING <column_list> INTO ...`返回自动生成Key，专门适配Oracle。
 
 ## 分页模式
 
+`orm.PageMode_`有以下选项，作用于高级执行方法`orm.DB.Find`。
+
+* `LimitOffset` 通过语法`LIMIT ... OFFSET ...`分页。
+* `OffsetFetch` 通过语法`OFFSET ROWS... FETCH ... ROWS ONLY`分页。
+
 ## 引用标识符
+
+`orm.QuotedIdentifier`_有以下选项。
+
+* `Backtick` 反引号`` ` ` ``
+* `DoubleQuote` 双引号`" "`
+* `Bracket` 方括号`[ ]`
 
 
