@@ -1,13 +1,13 @@
 ---
-title: DB实例
+title: DB配置
 weight: 1
 ---
 
-# DB实例
+# DB配置
 
 ## 配置
 
-`orm.DbInstConfig`的字段为DB实例的配置项。
+`orm.DbConfig`的字段为DB实例的配置项。
 
 | 配置项              | 类型                    | 描述                                                                                                                                                                                         |
 |---------------------|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -59,11 +59,11 @@ type UserInfo struct {
 func main() {
 	// ...
 
-	db := orm.DbInstConfig{
+	db := orm.DbConfig{
 		SqlDB:         sqlDB,
 		DbType:        orm.DbType_.MySQL,
 		TabNameMapper: orm.NewNameMapper().LowerCamelCase().AddPrefix("tb_"),
-	}.Build()
+	}.Build()ui
 
 	db.FindOne[UserInfo](nil).Must().Condition(orm.Cond().Eq("id", 1)).Do()
 	// 执行SQL:
@@ -72,6 +72,14 @@ func main() {
 ```
 
 ## 获取生成Key模式
+
+Go中不同数据库获取生成Key没有标准，原生的`sql.Result.LastInsertId()`不能支持所有数据库，即使支持，在语义上也有所不同。`orm.GetGeneratedKeyMode_`总结了各种获取生成Key的方式，创建`orm.DB`时根据数据库特性选择。有以下选项，其中基础执行方法`orm.DB.Mutation`只支持`FirstInsertId`和`LastInsertId`，高级执行方法`orm.DB.Insert`支持所有，详见[[Mutation]]()[[Insert]]()。
+
+* `FirstInsertId` 将`sql.Result.LastInsertId()`的返回值作为第一个插入记录的ID，适配数据库例子：MySQL、MariaDB。
+* `LastInsertId` 将`sql.Result.LastInsertId()`的返回值作为最后一个插入记录的ID，适配数据库例子：SQLite。
+* `Returning` 通过`INSERT ... RETURNING ...`返回语法返回自动生成Key，适配数据库例子：PostgreSQL、SQLite。
+* `SQLServer` 通过SQL Server方言`INSERT ... OUTPUT INSERTED.<column> ...`返回自动生成Key。
+* `Oracle` 通过Oracle的方言`INSERT ... RETURNING ... INTO...`返回自动生成Key。
 
 ## 分页模式
 
