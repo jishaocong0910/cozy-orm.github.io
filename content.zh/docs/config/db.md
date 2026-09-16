@@ -16,16 +16,16 @@ weight: 1
 | SqlLogLevel         | orm.SqlLogLevel         | SQL日志级别，通过枚举`orm.Level_`选择，关于枚举见[[枚举]](#枚举)。                                                                                                                                                      |
 | TabNameMapper       | *orm.NameMapper         | 默认的**实体名->表名**映射规则，默认为转小写下划线，见[[名称映射]](#名称映射)。                                                                                                                                         |
 | ColNameMapper       | *orm.NameMapper         | 默认的**实体字段名->表字段名**映射规则，默认为转小写下划线，见[[名称映射]](#名称映射)。                                                                                                                                 |
+| DBType              | orm.DBType              | 数据库类型，指定后将自动适配`ParamPrefix`、`GetGeneratedKeyMode`、`PageMode`和`QuotedIdentifier`参数，通过枚举`orm.DBType_`选择，当前支持MySQL、PostgreSQL、Oracle、SQL Server、SQLite。                                |
 | ParamPrefix         | string                  | 参数占位符前缀。不配置或为空字符串时，参数占位符号为`?`，否则为前缀拼接从1开始的递增数字。例如，若前缀为`:`，则参数占位符为`:1`、`:2`、`:3`...，若前缀为`$`，则为`$1`、`$2`、`$3` ...。可通过指定`DBType`参数快速配置。 |
-| GetGeneratedKeyMode | orm.GetGeneratedKeyMode | 获取生成Key模式，通过枚举`orm.GetGeneratedKeyMode_`选择（见[[获取生成Key模式]](#获取生成Key模式)），或通过指定`DBType`参数快速配置。                                                                                    |
+| GetGeneratedKeyMode | orm.GetGeneratedKeyMode | 获取生成Key模式，通过枚举`orm.GetGeneratedKeyMode_`选择（见[[获取生成Key模式]](#获取生成key模式)），或通过指定`DBType`参数快速配置。                                                                                    |
 | PageMode            | orm.PageMode            | 分页模式，通过枚举`orm.PageMode_`选择（见[[分页模式]](#分页模式)），或通过指定`DBType`参数快速配置。                                                                                                                    |
 | QuotedIdentifier    | orm.QuotedIdentifier    | 引用标识符，通过枚举`orm.QuotedIdentifier_`选择（见[[引用标识符]](#引用标识符)），或通过指定`DBType`参数快速配置。                                                                                                      |
-| DBType              | orm.DBType              | 数据库类型，指定后将自动适配`ParamPrefix`、`GetGeneratedKeyMode`、`PageMode`和`QuotedIdentifier`参数，通过枚举`orm.DBType_`选择，当前支持MySQL、PostgreSQL、Oracle、SQL Server、SQLite。                                |
 | ColumnPolicyConfigs | orm.ColumnPolicyConfigs | 字段策略配置，详见[[字段策略]](../column_policy)。                                                                                                                                                                      |
 
 ## 枚举
 
-CozyORM中以下划线结尾的变量为枚举（例如：`orm.DBType_`），其字段即为所有枚举选项，方便查看并选择。
+CozyORM中以下划线结尾的全局变量为枚举，通过`.`获取枚举选项。例如`orm.DBType_.MySQL`。
 
 > [!TIP]
 > 关于枚举的设计，可查看项目：[https://github.com/jishaocong0910/enum](https://github.com/jishaocong0910/enum)
@@ -45,7 +45,7 @@ Go中不同数据库获取生成Key没有标准，原生的`sql.Result.LastInser
 `orm.PageMode_`有以下选项，作用于高级执行方法`orm.DB.Find`。
 
 * `LimitOffset` 通过语法`LIMIT ... OFFSET ...`分页。
-* `OffsetFetch` 通过语法`OFFSET ROWS... FETCH ... ROWS ONLY`分页。
+* `OffsetFetch` 通过语法`OFFSET ROWS ... FETCH ... ROWS ONLY`分页。
 
 ## 引用标识符
 
@@ -75,8 +75,6 @@ Go中不同数据库获取生成Key没有标准，原生的`sql.Result.LastInser
 *Example*
 
 ```go
-// ...
-
 type UserInfo struct {
 	Id       *int64
 	NickName *string
