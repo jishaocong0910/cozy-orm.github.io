@@ -57,10 +57,26 @@ import (
 )
 
 type Product struct {
-	Id     *int64
-	Name   *string
-	Tags   Tags
-	SkuMap SkuMap
+	Id          *int64
+	Name        *string
+	Description *Description
+	Tags        Tags
+	SkuMap      SkuMap
+}
+
+type Description struct {
+	Title  string
+	Body   string
+	Images []string
+}
+
+func (d Description) ToValue() string {
+	b, _ := json.Marshal(d)
+	return string(b)
+}
+
+func (d *Description) ToField(val string) {
+	json.Unmarshal([]byte(val), d)
 }
 
 type Tags []string
@@ -82,9 +98,5 @@ func (s *SkuMap) ToValue() string {
 
 func (s *SkuMap) ToField(val string) {
 	json.Unmarshal([]byte(val), s)
-}
-
-type Description struct{
-	
 }
 ```
