@@ -19,7 +19,7 @@ Go内置类型支持如下，包括它们的类型定义和别名。
 
 ## 自定义类型
 
-支持同时实现Go内置的`driver.Valuer`和`sql.Scanner`接口的类型，例如第三方类型`github.com/shopspring/decimal.Decimal`。
+CozyORM支持同时实现Go内置的`driver.Valuer`和`sql.Scanner`接口的类型，例如第三方类型`github.com/shopspring/decimal.Decimal`。
 
 *Example*
 
@@ -46,9 +46,45 @@ CozyORM拥有独立的自定义类型机制，通过实现`orm.Convert[V]`接口
 
 > [!WARNING]
 >
-> 如果`orm.Convert.ToField`接受者底层类型是`map`，对其设置值是必须先通过`make`对其初始化。
+> 如果`orm.Convert.ToField`方法的接受者底层类型是`map`，对其设置值是必须先通过`make`对其初始化。
 
 *Example*
 
-```
+```go
+import (
+	"encoding/json"
+	"strings"
+)
+
+type Product struct {
+	Id     *int64
+	Name   *string
+	Tags   Tags
+	SkuMap SkuMap
+}
+
+type Tags []string
+
+func (p Tags) ToValue() string {
+	return strings.Join(p, ",")
+}
+
+func (p *Tags) ToField(val string) {
+	*p = strings.Split(val, ",")
+}
+
+type SkuMap map[string]string
+
+func (s *SkuMap) ToValue() string {
+	b, _ := json.Marshal(s)
+	return string(b)
+}
+
+func (s *SkuMap) ToField(val string) {
+	json.Unmarshal([]byte(val), s)
+}
+
+type Description struct{
+	
+}
 ```
