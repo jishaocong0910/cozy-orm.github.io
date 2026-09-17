@@ -72,16 +72,16 @@ Go原生的`sql.Result.LastInsertId()`不能支持所有数据库，且支持的
 
 | 方法/规则         | 描述         |
 |-------------------|--------------|
-| `LowerCamelCase()`  | 转小驼峰     |
-| `LowerSnakeCase()`    | 转小写下划线 |
-| `LowerFirstLiteral()` | 首字母小写   |
-| `UpperCamelCase()`    | 转大驼峰     |
-| `UpperSnakeCase()`    | 转大写下划线 |
-| `UpperFirstLiteral()` | 首字母大写   |
-| `AddPrefix()`         | 添加前缀     |
-| `AddSuffix()`         | 添加后缀     |
-| `SubPrefix()`         | 删除前缀     |
-| `SubSuffix()`         | 删除后缀     |
+| LowerCamelCase    | 转小驼峰     |
+| LowerSnakeCase    | 转小写下划线 |
+| LowerFirstLiteral | 首字母小写   |
+| UpperCamelCase    | 转大驼峰     |
+| UpperSnakeCase    | 转大写下划线 |
+| UpperFirstLiteral | 首字母大写   |
+| AddPrefix         | 添加前缀     |
+| AddSuffix         | 添加后缀     |
+| SubPrefix         | 删除前缀     |
+| SubSuffix         | 删除后缀     |
 
 *Example*
 
