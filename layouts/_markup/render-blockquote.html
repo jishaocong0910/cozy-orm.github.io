@@ -14,11 +14,11 @@
 <blockquote {{ range $key, $value := $attributes }}{{printf "%s='%s'" $key $value | safeHTMLAttr}}{{ end }}>
 <p>
     {{ transform.Emojify (index $emojis .AlertType) }}
-    {{ with .AlertTitle }}
+    <strong>{{ with .AlertTitle }}
     {{ . }}
     {{ else }}
     {{ or (i18n .AlertType) (title .AlertType) }}
-    {{ end }}
+    {{ end }}</strong>
 </p>
 {{ .Text -}}
 </blockquote>
