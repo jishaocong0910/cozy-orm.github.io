@@ -27,7 +27,7 @@ import (
 )
 
 type User struct {
-	Id       *int64 `orm:"pk,auto"`
+	Id       *int64 `orm:"pk;auto"`
 	Name     *string
 	Email    *string
 	Phone    *string
@@ -117,12 +117,12 @@ import (
 )
 
 type User struct {
-	Id       *int64 `orm:"pk,auto"`
+	Id       *int64 `orm:"pk;auto"`
 	Name     *string
+	Email    *string
+	Phone    *string
 	Age      *int32
 	Address  *string
-	Phone    *string
-	Email    *string
 	Status   *int8
 	Level    *int8
 	CreateAt *time.Time
