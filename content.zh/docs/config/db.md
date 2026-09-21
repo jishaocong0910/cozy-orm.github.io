@@ -103,6 +103,6 @@ func main() {
 
 	db.FindOne[UserProfile](nil).Condition(orm.Cond().Eq("id", 1)).Do()
 	// 执行SQL:
-	// SELECT id, user_id, avatar_url  FROM tb_user_info WHERE id = ?
+	// SELECT id, user_id, avatar_url FROM tb_user_info WHERE id = 1
 }
 ```

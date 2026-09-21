@@ -33,7 +33,7 @@ type Wallet struct {
 }
 ```
 
-CozyORM还拥有独立的自定义类型机制，通过实现`orm.Convert[V]`接口来实现。
+CozyORM拥有独立的自定义类型机制，通过实现`orm.Convert[V]`接口来实现。
 
 泛型`V`是一个中间类型，用于保存或映射数据库字段，类型如下，包括它们的类型定义和别名。
 

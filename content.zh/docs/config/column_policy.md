@@ -5,37 +5,35 @@ weight: 3
 
 # 字段策略
 
-字段策略作用于**高级执行方法**，用于配置字段的在方法中的统一处理方式。通过
-{{< html >}}<code>orm.NewColumnPolicyConfig(column&nbsp;string, tables&nbsp;...string)</code>{{< /html >}}}创建配置，其中`tables`参数指定作用的表范围，若不指定则为所有表的默认配置，字段名称与
-`column`参数相同会自动使用。每个表的字段只会使用一个配置，匹配多个配置时，指定了`tables`参数的优先级更高，若都指定了`tables`
-参数则取最后配置的策略。
+字段策略作用于高级执行方法，用于配置字段的在的统一处理方法。通过
+{{< html >}}<code>orm.NewColumnPolicyConfig(column&nbsp;string)</code>{{< /html >}}创建字段策略配置，{{< html >}}<code>ForTable(tables&nbsp;...string)</code>{{< /html >}}指定作用的表范围，若不指定则默认为所有表，{{< html >}}<code>IgnoreTable(tables&nbsp;...string)</code>{{< /html >}}可排除指定表。每个表的字段只会使用一个配置，匹配多个时，优先使用指定了表的配置，若都指定表则取最后的配置。
 
-通过链式调用方式，先调用`OnInsert()`、`OnUpdate()`、`OnDeleteSoftly()`指定事件，再调用事件提供的策略方法配置处理方式。
+字段策略可配置插入、更新和删除事件，对应方法`OnInsert`、`OnUpdate`、`OnDeleteSoftly`，提供的处理方法如下。
 
-*事件策略方法*
+*事件方法*
 
 {{< html >}}
 <table>
     <thead>
         <tr>
-            <th>事件</th><th>策略方法</th><th>描述</th>
+            <th>事件</th><th>方法</th><th>描述</th>
         </tr>
     </thead>
     <tbody> 
         <tr>
-            <td rowspan="3">OnInsert/OnUpdate</td><td><code>Value(force&nbsp;bool, batchReuse&nbsp;bool, value&nbsp;func()&nbsp;any)</code></td><td>在插入/更新记录时生成字段值。<code>force</code>指定是否强制覆盖生成的值，若为<code>false</code>则仅在插入/更新的值为<code>nil</code>时使用。<code>batchReuse</code>指定是否在批量插入/更新（高级执行方法<code>Insert</code>/<code>UpdateRow</code>）时只生成一次并复用，若为<code>false</code>则每行都生成一次。<code>value</code>为字段值的生成函数。</td>
+            <td rowspan="3">OnInsert/OnUpdate</td><td style="width: 21em;"><code>Value(force&nbsp;bool, batchReuse&nbsp;bool, value&nbsp;func()&nbsp;any)</code></td><td>在插入/更新记录时生成字段值。<code>force</code>指定是否强制覆盖生成的值，若为<code>false</code>则仅在插入/更新的值为<code>nil</code>时使用。<code>batchReuse</code>指定是否在批量插入/更新（高级执行方法<code>Insert</code>/<code>UpdateRow</code>）时只生成一次并复用，若为<code>false</code>则每行都生成一次。<code>value</code>为字段值的生成函数。</td>
         </tr>
         <tr>
-            <td><code>RawSql(force&nbsp;bool, batchReuse&nbsp;bool, rawSql&nbsp;func()&nbsp;string)</code></td><td>与<code>Value</code>方法的区别是，<code>rawSql</code>函数返回原生SQL作为字段值。</td>
+            <td><code>RawSql(force&nbsp;bool, batchReuse&nbsp;bool, rawSql&nbsp;func()&nbsp;string)</code></td><td>与<code>Value</code>方法的区别是，字段值为<code>rawSql</code>函数返回的原生SQL表达式。</td>
         </tr>
         <tr>
             <td><code>Never()</code></td><td>不赋值。将忽略插入/更新记录时对字段的赋值。</td>
         </tr>
         <tr>
-            <td rowspan="2">OnDeleteSoftly</td><td><code>AssignedPkMode[T](normalValue&nbsp;T)</code></td><td>使用<strong>AssignedPkMode</strong>模式软删除，见<a href="#%E8%BD%AF%E5%88%A0%E9%99%A4">[软删除]</a>。</td>
+            <td rowspan="2">OnDeleteSoftly</td><td><code>AssignedPkMode[T](normalValue&nbsp;T)</code></td><td rowspan="2">指定软删除模式，见<a href="#%E8%BD%AF%E5%88%A0%E9%99%A4">[软删除]</a>。</td>
         </tr>
         <tr>
-            <td><code>AssignedNullMode[T](normalValue&nbsp;T)</code></td><td>使用<strong>AssignedNullMode</strong>模式软删除，见<a href="#%E8%BD%AF%E5%88%A0%E9%99%A4">[软删除]</a>。</td>
+            <td><code>AssignedNullMode[T](normalValue&nbsp;T)</code>
         </tr>
     </tbody>
 </table>
@@ -53,15 +51,15 @@ db := orm.DBConfig{
 				OnInsert().Value(true, false, func(ctx context.Context) any {
 				return myIdGenerator.Int64()
 			}).OnUpdate().Never(),
-			
+
 			// 指定user表在插入记录时，若name字段值为nil则随机生成用户名。
-			orm.NewColumnPolicyConfig("name", "user").
+			orm.NewColumnPolicyConfig("name").ForTable("user").
 				OnInsert().Value(false, false, func(ctx context.Context) any {
 				return fmt.Sprintf("user_%09d", rand.Intn(1000000000))
 			}),
-			
+
 			// 指定user表的region字段从Context中获取。
-			orm.NewColumnPolicyConfig("region", "user").
+			orm.NewColumnPolicyConfig("region").ForTable("user").
 				OnInsert().Value(true, true, func(ctx context.Context) any {
 				if region, ok := ctx.Value("region").(string); ok {
 					return region
@@ -72,17 +70,17 @@ db := orm.DBConfig{
 	}.Build()
 ```
 
-## 常用策略
+## 内置策略
 
-CozyORM内置了一些常用的字段策略，通过链式调用方式调用`Use`开头的方法。
+字段策略配置中`Use`开头的方法是一些内置的常用策略。
 
 *内置策略方法*
 
-| 方法          | 描述                                                                                      |
-|---------------|-------------------------------------------------------------------------------------------|
-| UseCreateTime | 适用于创建时间字段，插入记录时字段值使用`time.Now()`生成，忽略更新。                      |
-| UseUpdateTime | 适用于更新时间字段，插入和更新记录时字段值使用`time.Now()`生成。                          |
-| UseRowVersion | 适用于版本号字段，插入记录时值为`1`，更新时递增（通过原生SQL`<column> = <column> + 1`）。 |
+| 方法          | 描述                                                                 |
+|---------------|----------------------------------------------------------------------|
+| UseCreateTime | 适用于创建时间字段，插入记录时字段值使用`time.Now()`生成，忽略更新。 |
+| UseUpdateTime | 适用于更新时间字段，插入和更新记录时字段值使用`time.Now()`生成。     |
+| UseRowVersion | 适用于版本号字段，插入记录时值为`1`，更新时递增。                    |
 
 *Example*
 
@@ -99,3 +97,71 @@ db := orm.DBConfig{
 ```
 
 ## 软删除
+
+高级执行方法[[DeleteSoftly]]()用于软删除记录，必须配置软删除模式才可使用。软删除的设计兼容了表的唯一约束，并且在删除记录后失效，实现方式是，表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
+
+## AssignedPkMode
+
+要求表仅有一个主键字段（实体字段需添加`pk`标签，详见[(标签)](../../entity/tag)），删除标记字段类型与主键字段类型相同。删除记录时，会将删除标记字段值赋值为主键。该模式适用于所有数据库。
+
+*Example*
+
+```go
+type User struct {
+	Id   *int64 `orm:"pk"`
+	Name *string
+}
+
+func main() {
+	// ...
+
+	db := orm.DBConfig{
+		SqlDB:  sqlDB,
+		DBType: orm.DBType_.MySQL,
+		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
+			orm.NewColumnPolicyConfig("deleted").OnDeleteSoftly().AssignedPkMode(0),
+		},
+	}.Build()
+
+	db.FindOne[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	// 执行SQL:
+	// SELECT id, name FROM user WHERE id = 1 AND deleted = 0
+
+	db.DeleteSoftly[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	// 执行SQL:
+	// UPDATE user SET deleted = id WHERE id = 1
+}
+```
+
+## AssignedNullMode
+
+要求唯一索引在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`Oracle`、&#8203;`PostgreSQL`和`SQLite`，而`SQL Server`并非此特性，因此不能使用。
+
+*Example*
+
+```go
+type User struct {
+	Id   *int64
+	Name *string
+}
+
+func main() {
+	// ...
+
+	db := orm.DBConfig{
+		SqlDB:  sqlDB,
+		DBType: orm.DBType_.MySQL,
+		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
+			orm.NewColumnPolicyConfig("deleted").OnDeleteSoftly().AssignedNullMode(0),
+		},
+	}.Build()
+
+	db.FindOne[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	// 执行SQL:
+	// SELECT id, name FROM user WHERE id = 1 AND deleted = 0
+
+	db.DeleteSoftly[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	// 执行SQL:
+	// UPDATE user SET deleted = NULL WHERE id = 1
+}
+```
