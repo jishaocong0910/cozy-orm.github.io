@@ -5,10 +5,10 @@ weight: 3
 
 # 字段策略
 
-字段策略作用于高级执行方法，用于配置字段的在的统一处理方法。通过
-{{< html >}}<code>orm.NewColumnPolicyConfig(column&nbsp;string)</code>{{< /html >}}创建字段策略配置，{{< html >}}<code>ForTable(tables&nbsp;...string)</code>{{< /html >}}指定作用的表范围，若不指定则默认为所有表，{{< html >}}<code>IgnoreTable(tables&nbsp;...string)</code>{{< /html >}}可排除指定表。每个表的字段只会使用一个配置，匹配多个时，优先使用指定了表的配置，若都指定表则取最后的配置。
+字段策略作用于高级执行方法，用于配置字段的统一处理逻辑。通过
+{{< html >}}<code>orm.NewColumnPolicyConfig(column&nbsp;string)</code>{{< /html >}}创建字段策略配置，{{< html >}}<code>ForTable(tables&nbsp;...string)</code>{{< /html >}}指定作用的表范围，若不指定则为所有表的默认配置，{{< html >}}<code>IgnoreTable(tables&nbsp;...string)</code>{{< /html >}}可排除指定表。每个表的字段只会使用一个配置，匹配多个时，优先使用非默认配置，多个非默认配置时取最后的配置。
 
-字段策略可配置插入、更新和删除事件，对应方法`OnInsert`、`OnUpdate`、`OnDeleteSoftly`，提供的处理方法如下。
+字段策略可配置插入、更新和删除事件的处理逻辑，对应方法`OnInsert`、`OnUpdate`、`OnDeleteSoftly`，提供的处理方法如下。
 
 *事件方法*
 
@@ -21,10 +21,10 @@ weight: 3
     </thead>
     <tbody> 
         <tr>
-            <td rowspan="3">OnInsert/OnUpdate</td><td style="width: 21em;"><code>Value(force&nbsp;bool, batchReuse&nbsp;bool, value&nbsp;func()&nbsp;any)</code></td><td>在插入/更新记录时生成字段值。<code>force</code>指定是否强制覆盖生成的值，若为<code>false</code>则仅在插入/更新的值为<code>nil</code>时使用。<code>batchReuse</code>指定是否在批量插入/更新（高级执行方法<code>Insert</code>/<code>UpdateRow</code>）时只生成一次并复用，若为<code>false</code>则每行都生成一次。<code>value</code>为字段值的生成函数。</td>
+            <td rowspan="3">OnInsert/OnUpdate</td><td style="width: 21em;"><code>Value(force bool, batchReuse bool, value func(ctx context.Context) any)</code></td><td>在插入/更新记录时生成字段值。<code>force</code>指定是否强制覆盖生成的值，若为<code>false</code>则仅在插入/更新的值为<code>nil</code>时使用。<code>batchReuse</code>指定是否在批量插入/更新（高级执行方法<code>Insert</code>/<code>UpdateRow</code>）时只生成一次并复用，若为<code>false</code>则每行都生成一次。<code>value</code>为字段值的生成函数。</td>
         </tr>
         <tr>
-            <td><code>RawSql(force&nbsp;bool, batchReuse&nbsp;bool, rawSql&nbsp;func()&nbsp;string)</code></td><td>与<code>Value</code>方法的区别是，字段值为<code>rawSql</code>函数返回的原生SQL表达式。</td>
+            <td><code>RawSql(force bool, batchReuse bool, rawSql func(ctx context.Context)</code></td><td>与<code>Value</code>方法的区别是，字段值为<code>rawSql</code>函数返回的原生SQL表达式。</td>
         </tr>
         <tr>
             <td><code>Never()</code></td><td>不赋值。将忽略插入/更新记录时对字段的赋值。</td>
