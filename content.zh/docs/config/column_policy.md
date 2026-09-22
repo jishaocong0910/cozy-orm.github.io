@@ -100,7 +100,7 @@ db := orm.DBConfig{
 
 软删除模式用于启用高级执行方法[[DeleteSoftly]](../../execute/advance/#deletedsoftly)。软删除的设计兼容了表的唯一约束，并且在删除记录后失效，实现方式是，表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
 
-## AssignedPkMode
+### AssignedPkMode
 
 要求表仅有一个主键字段（实体字段需添加`pk`标签，详见[[标签]](../../entity/tag)），且删除标记字段类型与主键字段类型相同。删除记录时，会将删除标记字段值赋值为主键。该模式适用于所有数据库。
 
@@ -117,8 +117,9 @@ CREATE TABLE user (
 
 ```go
 type User struct {
-	Id   *int64 `orm:"pk"`
-	Name *string
+	Id      *int64 `orm:"pk"`
+	Name    *string
+	Deleted *int64
 }
 
 func main() {
@@ -142,9 +143,9 @@ func main() {
 }
 ```
 
-## AssignedNullMode
+### AssignedNullMode
 
-要求唯一索引在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`，而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，因此不能使用。你可以通过下面的SQL进行测试。
+要求唯一约束在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`，而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，因此不能使用。你可以通过下面的SQL进行测试。
 
 ```sql
 CREATE TABLE tab (
