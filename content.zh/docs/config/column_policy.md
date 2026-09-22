@@ -30,7 +30,7 @@ weight: 3
             <td><code>Never()</code></td><td>不赋值。将忽略插入/更新记录时对字段的赋值。</td>
         </tr>
         <tr>
-            <td rowspan="2">OnDeleteSoftly</td><td><code>AssignedPkMode[T](normalValue&nbsp;T)</code></td><td rowspan="2">指定软删除模式，见<a href="#%E8%BD%AF%E5%88%A0%E9%99%A4">[软删除]</a>。</td>
+            <td rowspan="2">OnDeleteSoftly</td><td><code>AssignedPkMode[T](normalValue&nbsp;T)</code></td><td rowspan="2">指定软删除模式，见<a href="#%E8%BD%AF%E5%88%A0%E9%99%A4%E6%A8%A1%E5%BC%8F">[软删除模式]</a>。</td>
         </tr>
         <tr>
             <td><code>AssignedNullMode[T](normalValue&nbsp;T)</code>
@@ -78,7 +78,7 @@ db := orm.DBConfig{
 
 | 方法          | 描述                                                                 |
 |---------------|----------------------------------------------------------------------|
-| UseCreateTime | 适用于创建时间字段，插入记录时字段值使用`time.Now()`生成，忽略更新。 |
+| UseCreateTime | 适用于创建时间字段，插入记录时字段值使用`time.Now()`生成，禁止更新。 |
 | UseUpdateTime | 适用于更新时间字段，插入和更新记录时字段值使用`time.Now()`生成。     |
 | UseRowVersion | 适用于版本号字段，插入记录时值为`1`，更新时递增。                    |
 
@@ -96,15 +96,24 @@ db := orm.DBConfig{
 	}.Build()
 ```
 
-## 软删除
+## 软删除模式
 
-高级执行方法[[DeleteSoftly]]()用于软删除记录，必须配置软删除模式才可使用。软删除的设计兼容了表的唯一约束，并且在删除记录后失效，实现方式是，表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
+软删除模式用于启用高级执行方法[[DeleteSoftly]](../../execute/advance/#deletedsoftly)。软删除的设计兼容了表的唯一约束，并且在删除记录后失效，实现方式是，表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
 
 ## AssignedPkMode
 
-要求表仅有一个主键字段（实体字段需添加`pk`标签，详见[(标签)](../../entity/tag)），删除标记字段类型与主键字段类型相同。删除记录时，会将删除标记字段值赋值为主键。该模式适用于所有数据库。
+要求表仅有一个主键字段（实体字段需添加`pk`标签，详见[[标签]](../../entity/tag)），且删除标记字段类型与主键字段类型相同。删除记录时，会将删除标记字段值赋值为主键。该模式适用于所有数据库。
 
 *Example*
+
+```mysql
+CREATE TABLE user (
+	id BIGINT PRIMARY KEY,
+	name VARCHAR(20) NOT NULL,
+	deleted BIGINT NOT NULL DEFAULT 0,
+	UNIQUE (name, deleted)
+);
+```
 
 ```go
 type User struct {
@@ -135,14 +144,24 @@ func main() {
 
 ## AssignedNullMode
 
-要求唯一索引在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`Oracle`、&#8203;`PostgreSQL`和`SQLite`，而`SQL Server`并非此特性，因此不能使用。
+要求唯一索引在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`，而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，因此不能使用。
 
 *Example*
 
+```mysql
+CREATE TABLE user (
+	id BIGINT PRIMARY KEY,
+	name VARCHAR(20) NOT NULL,
+	deleted TINYINT(1) DEFAULT 0,
+	UNIQUE (name, deleted)
+);
+```
+
 ```go
 type User struct {
-	Id   *int64
-	Name *string
+	Id      *int64
+	Name    *string
+	Deleted *bool
 }
 
 func main() {
