@@ -144,7 +144,18 @@ func main() {
 
 ## AssignedNullMode
 
-要求唯一索引在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`，而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，因此不能使用。
+要求唯一索引在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`，而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，因此不能使用。你可以通过下面的SQL进行测试。
+
+```sql
+CREATE TABLE tab (
+	col1 VARCHAR(10),
+	col2 VARCHAR(10),
+	UNIQUE (col1, col2)
+);
+
+insert into tab values('a', null);
+insert into tab values('a', null); -- 此语句必须成功才能使用AssignedNullMode
+```
 
 *Example*
 
