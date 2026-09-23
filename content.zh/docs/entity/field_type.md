@@ -9,10 +9,10 @@ weight: 1
 
 ## Go内置类型
 
-支持的Go内置类型如下，包括它们的类型定义和别名。
+支持以下Go内置类型，包括它们的类型定义和别名。
 
-`*int`、`*int8`、`*int16`、`*int32`、`*int64`、`*uint`、`*uint8`、`*uint16`、`*uint32`、`*uint64`、&#8203;`*float32`、&#8203;
-`*float64`、&#8203;`*bool`、&#8203;`*string`、&#8203;`[]byte`、byte数组、&#8203;`*time.Time`、&#8203;`*uuid.UUID`(Go1.27新增)
+`*int`、`*int8`、`*int16`、`*int32`、`*int64`、`*uint`、`*uint8`、`*uint16`、`*uint32`、`*uint64`、`*float32`、&#8203;
+`*float64`、&#8203;`*bool`、&#8203;`*string`、&#8203;`*[N]byte`、`*time.Time`、`*uuid.UUID`(Go1.27新增)、`[]byte`
 
 ## 自定义类型
 
@@ -102,8 +102,8 @@ func (s *SkuMap) ToValue() *string {
 	return nil
 }
 
-func (s *SkuMap) ToField(val *string) {
-	// 数据库值不为null时该方法才会被调用，因此val不会等于nil
-	json.Unmarshal([]byte(*val), s)
+func (s *SkuMap) ToField(value *string) {
+	// 数据库值不为null时该方法才会被调用，因此value不会等于nil
+	json.Unmarshal([]byte(*value), s)
 }
 ```
