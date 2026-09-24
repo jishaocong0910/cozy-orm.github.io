@@ -6,17 +6,17 @@ weight: 3
 # 字段策略
 
 字段策略作用于高级执行方法，用于配置字段的统一处理逻辑。通过
-{{< html >}}<code>orm.NewColumnPolicyConfig(column&nbsp;string)</code>{{< /html >}}创建字段策略配置，{{< html >}}<code>ForTable(tables&nbsp;...string)</code>{{< /html >}}指定作用的表范围，若不指定则为所有表的默认配置，{{< html >}}<code>IgnoreTable(tables&nbsp;...string)</code>{{< /html >}}可排除指定表。每个表的字段只会使用一个配置，匹配多个时，优先使用非默认配置，多个非默认配置时取最后的配置。
+{{< html >}}<code>orm.NewColumnPolicyConfig(column&nbsp;string)</code>{{< /html >}}创建字段策略配置，方法`ForTable`指定作用的表范围，若不指定则为所有表的默认配置，方法`IgnoreTable`可排除指定表。每个表的字段只会使用一个配置，匹配多个时，优先使用非默认配置，多个非默认配置时取最后的配置。
 
-字段策略可配置插入、更新和删除事件的处理逻辑，对应方法`OnInsert`、`OnUpdate`、`OnDeleteSoftly`，提供的处理方法如下。
+字段策略可配置插入、更新和删除事件的处理逻辑，对应方法`OnInsert`、`OnUpdate`、`OnDeleteSoftly`，事件提供的处理方法如下。
 
-*事件方法*
+*事件处理方法*
 
 {{< html >}}
 <table>
     <thead>
         <tr>
-            <th>事件</th><th>方法</th><th>描述</th>
+            <th>事件</th><th>处理方法</th><th>描述</th>
         </tr>
     </thead>
     <tbody> 
@@ -98,7 +98,7 @@ db := orm.DBConfig{
 
 ## 软删除模式
 
-软删除模式用于启用高级执行方法[[DeleteSoftly]](../../execute/advance/#deletedsoftly)。软删除的设计兼容了表的唯一约束，并且在删除记录后失效，实现方式是，表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
+软删除模式用于启用高级执行方法[[DeleteSoftly]](../../execute/advance/#deletedsoftly)。软删除的设计兼容了表的唯一约束，并且在删除记录后失效，实现方式是，表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`的事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
 
 ### AssignedPkMode
 
@@ -139,7 +139,7 @@ func main() {
 
 	db.DeleteSoftly[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
 	// 执行SQL:
-	// UPDATE user SET deleted = id WHERE id = 1
+	// UPDATE user SET deleted = id WHERE id = 1 AND deleted = 0
 }
 ```
 
@@ -195,6 +195,6 @@ func main() {
 
 	db.DeleteSoftly[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
 	// 执行SQL:
-	// UPDATE user SET deleted = NULL WHERE id = 1
+	// UPDATE user SET deleted = NULL WHERE id = 1 AND deleted = 0
 }
 ```

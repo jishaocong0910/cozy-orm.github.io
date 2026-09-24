@@ -25,7 +25,7 @@ weight: 1
 
 ## 枚举
 
-CozyORM中以下划线结尾的全局变量为枚举，通过`.`获取枚举选项。例如`orm.DBType_.MySQL`。
+CozyORM中以下划线结尾的全局变量为枚举。通过`.`获取枚举选项，例如`orm.DBType_.MySQL`。
 
 > [!TIP]
 >
