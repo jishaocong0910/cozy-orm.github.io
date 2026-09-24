@@ -44,13 +44,13 @@ db := orm.DBConfig{
 		SqlDB:  sqlDB,
 		DBType: orm.DBType_.MySQL,
 		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
-			// 指定所有表的id字段，使用自定义的ID生成器创建，并且禁止更新。
+			// 指定所有表的id字段使用自定义的ID生成器创建，并且禁止更新。
 			orm.NewColumnPolicyConfig("id").
 				OnInsert().Value(true, false, func(ctx context.Context) any {
 				return myIdGenerator.Int64()
 			}).OnUpdate().Never(),
 
-			// 指定user表在插入记录时，若name字段值为nil则随机生成用户名。
+			// 指定user表在插入记录时，若name字段参数为nil则随机生成。
 			orm.NewColumnPolicyConfig("name").ForTable("user").
 				OnInsert().Value(false, false, func(ctx context.Context) any {
 				return fmt.Sprintf("user_%09d", rand.Intn(1000000000))
@@ -70,7 +70,7 @@ db := orm.DBConfig{
 
 ## 内置策略
 
-字段策略配置中`Use`开头的方法是一些内置的常用策略。
+字段策略配置中以`Use`开头的方法是一些内置的常用策略。
 
 | 方法          | 描述                                                                 |
 |---------------|----------------------------------------------------------------------|
@@ -94,7 +94,7 @@ db := orm.DBConfig{
 
 ## 软删除模式
 
-软删除模式用于启用高级执行方法[[DeleteSoftly]](../../execute/advance/#deletedsoftly)。软删除的设计兼容了表的唯一约束，并且在删除记录后失效，实现方式是，表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`的事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
+软删除模式用于启用高级执行方法`orm.DB.DeletedSofyly`。软删除的设计兼容了表的唯一约束，可在删除记录后失效，实现方案是：给表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`的事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
 
 ### AssignedPkMode
 
@@ -131,7 +131,7 @@ func main() {
 
 	db.FindOne[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
 	// 执行SQL:
-	// SELECT id, name FROM user WHERE id = 1 AND deleted = 0
+	// SELECT id, name, deleted FROM user WHERE id = 1 AND deleted = 0
 
 	db.DeleteSoftly[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
 	// 执行SQL:
@@ -141,7 +141,7 @@ func main() {
 
 ### AssignedNullMode
 
-要求唯一约束在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`，而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，因此不能使用。你可以通过下面的SQL进行测试。
+要求唯一约束在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`，而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，因此不能使用，可通过下面的SQL测试。
 
 ```sql
 -- 测试AssignedNullMode
@@ -187,7 +187,7 @@ func main() {
 
 	db.FindOne[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
 	// 执行SQL:
-	// SELECT id, name FROM user WHERE id = 1 AND deleted = 0
+	// SELECT id, name, deleted FROM user WHERE id = 1 AND deleted = 0
 
 	db.DeleteSoftly[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
 	// 执行SQL:
