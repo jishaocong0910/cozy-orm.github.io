@@ -16,6 +16,8 @@ weight: 3
 
 泛型的个数代表可查询的字段个数，且须满足[[字段类型]](../field_type)要求，为了方便，对于指针，允许直接写底层类型。
 
+*Example*
+
 ```go
 emails, _ := db.Query[orm.Tuple2[int64, *string]](nil).BuildSql(func(b *orm.SqlBuilder) {
 	b.Write("SELECT id, email FROM user WHERE id IN(1, 2, 3)")

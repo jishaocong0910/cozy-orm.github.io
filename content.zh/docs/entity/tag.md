@@ -25,6 +25,6 @@ type User struct {
 	Id       *int64     `orm:"column=id;pk;auto"`
 	Name     *int64     `orm:"column=name"`
 	CreateAt *time.Time `orm:"column=create_at"`
-	Online   *bool      `orm:"ignore"`
+	Extra    any        `orm:"ignore"`
 }
 ```
