@@ -94,7 +94,7 @@ db := orm.DBConfig{
 
 ## 软删除模式
 
-软删除模式用于启用高级执行方法`orm.DB.DeletedSofyly`。软删除的设计兼容了表的唯一约束，可在删除记录后失效，实现方案是：给表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`的事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
+软删除模式用于启用高级执行方法`DeletedSoftly`。软删除的设计兼容了表的唯一约束，可在删除记录后失效，实现方案是：给表增加删除标记字段，创建唯一索引时，与删除标记字段做联合索引。字段策略配置的`column`参数为删除标记字段，`OnDeleteSoftly`的事件方法`AssignedPkMode`和`AssignedNullMode`用于指定模式，其中`normalValue`参数指定了正常（未删除）数据的查询条件，两种模式的区别如下。
 
 ### AssignedPkMode
 
