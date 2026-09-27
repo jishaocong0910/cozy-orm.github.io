@@ -5,7 +5,7 @@ weight: 3
 
 # 预定义实体
 
-预定义实体是CozyORM提供的一些类型，可作为实体使用，用于方便查询少量字段，或非表字段（例如聚合函数）等业务，有如下类型。预定义实体只能用于基础执行方法`Query`。
+预定义实体是CozyORM提供的可临时映射查询结果的类型，具有动态字段类型的特性，方便查询少量字段，或非表字段（例如聚合函数）等业务，只能用于基础执行方法`Query`。
 
 * `orm.Tuple[T]`
 * `orm.Tuple2[T1, T2]`
@@ -28,12 +28,8 @@ for _, name := range emails {
 }
 
 orders, _ := db.Query[orm.Tuple3[int64, int64, int64]](nil).BuildSql(func(b *orm.SqlBuilder) {
-	b.Write("SELECT user_id, COUNT(*), SUM(order_amount) ")
-	b.Write("FROM orders ")
-	b.Write("WHERE status = 'paid' ")
-	b.Write("  AND user_id IN(1, 2, 3) ")
-	b.Write("GROUP BY user_id")
-}).Do()
+	b.Write("SELECT user_id, COUNT(*), SUM(order_amount) FROM orders " +
+		"WHERE status = 'paid' AND user_id IN(1, 2, 3) GROUP BY user_id")
 
 for _, order := range orders {
 	fmt.Println(order.Field1, order.Field2, order.Field3)

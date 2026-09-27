@@ -6,9 +6,9 @@ weight: 3
 # 字段策略
 
 字段策略作用于高级执行方法，用于配置字段的统一处理逻辑。通过
-{{< html >}}<code>orm.NewColumnPolicyConfig(column&nbsp;string)</code>{{< /html >}}创建字段策略配置，方法`ForTable`指定作用的表范围，若不指定则为所有表的默认配置，方法`IgnoreTable`可排除指定表。每个表的字段只会使用一个配置，匹配多个时，优先使用非默认配置，多个非默认配置时取最后的配置。
+{{< html >}}<code>orm.NewColumnPolicyConfig(column&nbsp;string)</code>{{< /html >}}创建字段策略配置，方法`ForTable`用于指定作用的表，若不指定则为所有表的默认配置，方法`IgnoreTable`可排除指定表。每个表的字段只会使用一个配置，匹配多个时，优先使用非默认配置，多个非默认配置时取最后的配置。
 
-字段策略可配置插入、更新和删除事件的处理逻辑，对应方法`OnInsert`、`OnUpdate`、`OnDeleteSoftly`，事件提供的处理方法如下。
+字段策略可配置插入、更新和删除事件，对应方法`OnInsert`、`OnUpdate`、`OnDeleteSoftly`，事件提供的处理方法如下。
 
 {{< html >}}
 <table>
@@ -44,19 +44,19 @@ db := orm.DBConfig{
 		SqlDB:  sqlDB,
 		DBType: orm.DBType_.MySQL,
 		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
-			// 指定所有表的id字段使用自定义的ID生成器创建，并且禁止更新。
+			// 所有表的id字段使用自定义的ID生成器创建，并且禁止更新。
 			orm.NewColumnPolicyConfig("id").
 				OnInsert().Value(true, false, func(ctx context.Context) any {
 				return myIdGenerator.Int64()
 			}).OnUpdate().Never(),
 
-			// 指定user表在插入记录时，若name字段参数为nil则随机生成。
+			// 插入user表时，若name字段值为nil则随机生成。
 			orm.NewColumnPolicyConfig("name").ForTable("user").
 				OnInsert().Value(false, false, func(ctx context.Context) any {
 				return fmt.Sprintf("user_%09d", rand.Intn(1000000000))
 			}),
 
-			// 指定user表的region字段从Context中获取。
+			// 插入user表时，region字段值从Context中获取。
 			orm.NewColumnPolicyConfig("region").ForTable("user").
 				OnInsert().Value(true, true, func(ctx context.Context) any {
 				if region, ok := ctx.Value("region").(string); ok {
@@ -98,7 +98,7 @@ db := orm.DBConfig{
 
 ### AssignedPkMode
 
-要求表仅有一个主键字段（实体字段需添加`pk`标签，详见[[标签]](../../entity/tag)），且删除标记字段类型与主键字段类型相同。删除记录时，会将删除标记字段值赋值为主键。该模式适用于所有数据库。
+该模式删除记录时会将删除标记字段值赋值为主键。要求表仅有一个主键字段（实体字段需添加`pk`标签，详见[[标签]](../../entity/tag)），且删除标记字段类型与主键字段类型相同。所有数据库都可使用该模式。
 
 *Example*
 
@@ -141,7 +141,7 @@ func main() {
 
 ### AssignedNullMode
 
-要求唯一约束在含有`null`值字段时失效。删除记录时，会将删除标记字段值赋值为`null`。仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`，而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，因此不能使用，可通过下面的SQL测试。
+该模式删除记录时会将删除标记字段值赋值为`null`。要求唯一约束在含有`null`值字段时失效，因此仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`。而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，不能使用该模式，可通过下面的SQL测试。
 
 ```sql
 -- 测试AssignedNullMode
