@@ -11,7 +11,7 @@ weight: 1
 go get github.com/jishaocong0910/cozy-orm
 ```
 
-## 基础执行方法
+## 基础执行器
 
 ```go
 package main
@@ -101,7 +101,7 @@ func main() {
 }
 ```
 
-## 高级执行方法
+## 高级执行器
 
 ```go
 package main

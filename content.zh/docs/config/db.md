@@ -44,11 +44,11 @@ Go原生的`sql.Result.LastInsertId()`不能支持所有数据库，且支持的
 | Oracle          | 通过Oracle的方言`INSERT ... RETURNING <column_list> INTO ...`返回自动生成Key，专门适配Oracle。     |
 
 
-基础执行方法`Mutation`只支持`FirstInsertId`和`LastInsertId`，高级执行方法`Insert`支持所有。
+基础执行器`Mutation`只支持`FirstInsertId`和`LastInsertId`，高级执行器`Insert`支持所有。
 
 ## 分页模式
 
-`orm.PageMode_`有以下选项，作用于高级执行方法`Find`。
+`orm.PageMode_`有以下选项，作用于高级执行器`Find`。
 
 | 选项        | 描述                                                                  |
 |-------------|-----------------------------------------------------------------------|
