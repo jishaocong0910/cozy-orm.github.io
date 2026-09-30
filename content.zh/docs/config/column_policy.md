@@ -41,31 +41,31 @@ weight: 3
 
 ```go
 db := orm.DBConfig{
-		SqlDB:  sqlDB,
-		DBType: orm.DBType_.MySQL,
-		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
-			// 所有表的id字段使用自定义的ID生成器创建，并且禁止更新。
-			orm.NewColumnPolicyConfig("id").
-				OnInsert().Value(true, false, func(ctx context.Context) any {
-				return myIdGenerator.Int64()
-			}).OnUpdate().Never(),
+	SqlDB:  sqlDB,
+	DBType: orm.DBType_.MySQL,
+	ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
+		// 所有表的id字段使用自定义的ID生成器创建，并且禁止更新。
+		orm.NewColumnPolicyConfig("id").
+			OnInsert().Value(true, false, func(ctx context.Context) any {
+			return myIdGenerator.Int64()
+		}).OnUpdate().Never(),
 
-			// 插入user表时，若name字段值为nil则随机生成。
-			orm.NewColumnPolicyConfig("name").ForTable("user").
-				OnInsert().Value(false, false, func(ctx context.Context) any {
-				return fmt.Sprintf("user_%09d", rand.Intn(1000000000))
-			}),
+		// 插入user表时，若name字段值为nil则随机生成。
+		orm.NewColumnPolicyConfig("name").ForTable("user").
+			OnInsert().Value(false, false, func(ctx context.Context) any {
+			return fmt.Sprintf("user_%09d", rand.Intn(1000000000))
+		}),
 
-			// 插入user表时，region字段值从Context中获取。
-			orm.NewColumnPolicyConfig("region").ForTable("user").
-				OnInsert().Value(true, true, func(ctx context.Context) any {
-				if region, ok := ctx.Value("region").(string); ok {
-					return region
-				}
-				return nil
-			}),
-		},
-	}.Build()
+		// 插入user表时，region字段值从Context中获取。
+		orm.NewColumnPolicyConfig("region").ForTable("user").
+			OnInsert().Value(true, true, func(ctx context.Context) any {
+			if region, ok := ctx.Value("region").(string); ok {
+				return region
+			}
+			return nil
+		}),
+	},
+}.Build()
 ```
 
 ## 内置策略
@@ -82,14 +82,14 @@ db := orm.DBConfig{
 
 ```go
 db := orm.DBConfig{
-		SqlDB:  sqlDB,
-		DBType: orm.DBType_.MySQL,
-		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
-			orm.NewColumnPolicyConfig("create_at").UseCreateTime(),
-			orm.NewColumnPolicyConfig("update_at").UseUpdateTime(),
-			orm.NewColumnPolicyConfig("version").UseRowVersion(),
-		},
-	}.Build()
+	SqlDB:  sqlDB,
+	DBType: orm.DBType_.MySQL,
+	ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
+		orm.NewColumnPolicyConfig("create_at").UseCreateTime(),
+		orm.NewColumnPolicyConfig("update_at").UseUpdateTime(),
+		orm.NewColumnPolicyConfig("version").UseRowVersion(),
+	},
+}.Build()
 ```
 
 ## 软删除模式
@@ -98,7 +98,7 @@ db := orm.DBConfig{
 
 ### AssignedPkMode
 
-该模式删除记录时会将删除标记字段值赋值为主键。要求表仅有一个主键字段（实体字段需添加`pk`标签，详见[[标签]](../../entity/tag)），且删除标记字段类型与主键字段类型相同。所有数据库都可使用该模式。
+该模式删除记录时会将删除标记字段值赋值为主键。要求表仅有一个主键字段（实体字段需带有`pk`[[标签]](../../entity/tag)），且删除标记字段类型与主键字段类型相同。所有数据库都可使用该模式。
 
 *Example*
 

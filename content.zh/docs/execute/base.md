@@ -16,20 +16,20 @@ weight: 2
 | 方法                              | 描述                                                                                                                        |
 |-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | `BuildSql(func(*orm.SqlBuilder))` | 构建SQL处理函数，使用`*orm.SqlBuilder`变量拼接SQL，用法详见[[SQL构建器]](../sql_builder)                                    |
-| `MapTargets(...*E)`               | 将查询结果映射到指定的实体，指定后`Do`方法将不会再返回查询结果。其设计目的是：兼容部分数据库通过查询结果获取生成Key的机制。 |
+| `MapTo(...*E)`                    | 将查询结果映射到指定的实体，指定后`Do`方法将不会再返回查询结果。其设计目的是：兼容部分数据库通过查询结果获取生成Key的机制。 |
 | `Do() ([]*E, error)`              | 执行SQL并返回映射的实体。                                                                                                   |
 
 *Example*
 
 ```go
 users, _ := db.Query[User](nil).BuildSql(func(b *orm.SqlBuilder) {
-		b.Write("SELECT id, name, email FROM user WHERE id = $1", 1)
-	}).Do()
+	b.Write("SELECT id, name, email FROM user WHERE id = 1")
+}).Do()
 ```
 
 ### 获取生成Key
 
-部分数据库获取生成Key是通过结果集返回，而不是`sql.Result.LastInsertId`方法，例如PostgreSQL、SQL Server。
+部分数据库获取生成Key是通过结果集返回，而不是`sql.Result.LastInsertId`方法，例如PostgreSQL、SQL Server，`Query`执行器兼容这种机制，通过`MapTargets`方法将生成的Key映射到实体中。
 
 *Go原生方式示例*
 
@@ -37,12 +37,13 @@ users, _ := db.Query[User](nil).BuildSql(func(b *orm.SqlBuilder) {
 users := []*User{
 	{Name: new("Alex"), Email: new("alex@example.com")},
 	{Name: new("John"), Email: new("john@example.com")},
+	{Name: new("Charlie"), Email: new("charlie@example.com")},
 }
 
 sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
-rows, err := sqlDB.Query("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4) RETURNING id",
-	users[0].Name, users[0].Email, users[1].Name, users[1].Email)
+rows, err := sqlDB.Query("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id",
+	users[0].Name, users[0].Email, users[1].Name, users[1].Email, users[2].Name, users[2].Email)
 if err != nil {
 	panic(err)
 }
@@ -53,10 +54,11 @@ for i := 0; rows.Next(); i++ {
 	rows.Scan(&id)
 	ids = append(ids, id)
 }
-fmt.Println(ids)
-```
 
-`Query`执行器兼容这种机制，通过`MapTargets`方法将生成的Key映射到实体中。
+fmt.Println(ids[0])
+fmt.Println(ids[1])
+fmt.Println(ids[2])
+```
 
 *Query执行器示例*
 
@@ -64,6 +66,7 @@ fmt.Println(ids)
 users := []*User{
 	{Name: new("Alex"), Email: new("alex@example.com")},
 	{Name: new("John"), Email: new("john@example.com")},
+	{Name: new("Charlie"), Email: new("charlie@example.com")},
 }
 
 sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
@@ -73,12 +76,16 @@ db := orm.DBConfig{
 	DBType: orm.DBType_.Postgres,
 }.Build()
 
-db.Query[User](nil).MapTargets(users...).BuildSql(func(b *orm.SqlBuilder) {
-	b.Write("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4) RETURNING id",
-		users[0].Name, users[0].Email, users[1].Name, users[1].Email)
+db.Query[User](nil).MapTo(users...).BuildSql(func(b *orm.SqlBuilder) {
+	b.Write("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id")
+	for _, user := range users {
+		b.Args(user.Name, user.Email)
+	}
 }).Do()
 
-fmt.Println(users[0].Id, users[1].Id)
+fmt.Println(users[0].Id)
+fmt.Println(users[1].Id)
+fmt.Println(users[2].Id)
 ```
 
 ## Mutation
@@ -87,13 +94,44 @@ fmt.Println(users[0].Id, users[1].Id)
 
 *执行器方法*
 
-| 方法                              | 描述                                                                                     |
-|-----------------------------------|------------------------------------------------------------------------------------------|
-| `BuildSql(func(*orm.SqlBuilder))` | 构建SQL处理函数，使用`*orm.SqlBuilder`变量拼接SQL，用法详见[[SQL构建器]](../sql_builder) |
-| `MapTargets(...*E)`               | 将`sql.Result.LastInsertId`映射到指定实体。                                              |
-| `Do() (int64, error)`             | 执行SQL并返回映射的实体。                                                                |
+| 方法                              | 描述                                                                                                                                                                                                                                                                       |
+|-----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `BuildSql(func(*orm.SqlBuilder))` | 构建SQL处理函数，使用`*orm.SqlBuilder`变量拼接SQL，用法详见[[SQL构建器]](../sql_builder)                                                                                                                                                                                   |
+| `MapTo[E]( ...*E)`                | 将`sql.Result.LastInsertId`映射到指定实体。要求必须指定[[获取生成Key模式]](../../config/db/#%E8%8E%B7%E5%8F%96%E7%94%9F%E6%88%90key%E6%A8%A1%E5%BC%8F)为`FirstInsertId`或`LastInsertId`，泛型`E`必须是一个有且仅有一个带有`auto`[[标签]](../../entity/tag)字段的实体类型。 |
+| `Do() (int64, error)`             | 执行SQL并返回影响行数。                                                                                                                                                                                                                                                    |
 
 *Example*
 
+```go   
+affected, _ := db.Mutation(nil).BuildSql(func(b *orm.SqlBuilder) {
+	b.Write("UPDATE user SET name = 'Alice' WHERE id = 1")
+}).Do()
 ```
+
+### 获取生成Key
+
+```go
+users := []*User{
+	{Name: new("Alex"), Email: new("alex@example.com")},
+	{Name: new("John"), Email: new("john@example.com")},
+	{Name: new("Charlie"), Email: new("charlie@example.com")},
+}
+
+sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+
+db := orm.DBConfig{
+	SqlDB:  sqlDB,
+	GetGeneratedKeyMode: orm.GetGeneratedKeyMode_.FirstInsertId,
+}.Build()
+
+db.Mutation(nil).MapTo(users...).BuildSql(func(b *orm.SqlBuilder) {
+	b.Write("INSERT INTO user(name, email) VALUES(?, ?), (?, ?), (?, ?)")
+	for _, user := range users {
+		b.Args(user.Name, user.Email)
+	}
+}).Do()
+
+fmt.Println(users[0].Id)
+fmt.Println(users[1].Id)
+fmt.Println(users[2].Id)
 ```
