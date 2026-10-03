@@ -45,10 +45,6 @@ CozyORM中以下划线结尾的全局变量为枚举。通过`.`获取枚举选�
 | SQLServer       | 通过SQL Server方言`INSERT ... OUTPUT {INSERTED.<column>} ...`返回自动生成Key，专门适配SQL Server。 |
 | Oracle          | 通过Oracle的方言`INSERT ... RETURNING ... INTO ...`返回自动生成Key，专门适配Oracle。               |
 
-> [!WARNING]
->
-> `FirstInsertId`和`LastInsertId`模式是根据`sql.Result.LastInsertId`方法的返回值推算ID的，一些数据库的方言可能导致计算结果与预期不同，例如MySQL的`ON DUPLICATE KEY UPDATE ...`和SQLite的`ON CONFLICT ... DO ...`，因为无法预期唯一冲突造成仅部分插入，导致推算ID不准确。
-
 ## 分页模式
 
 `orm.PageMode_`有以下选项，作用于高级执行器`Find`。

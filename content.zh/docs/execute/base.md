@@ -5,13 +5,13 @@ weight: 2
 
 # 基础执行器
 
-基础执行器是CozyORM的核心功能，通过自定义SQL执行，并且兼容部分数据库获取自动生成Key的机制。
+基础执行器是CozyORM的核心功能，通过自定义SQL执行，并且兼容部分数据库获取生成Key的机制。
 
 ## Query
 
-`Query`执行器用于执行SELECT语句，底层使用方法`sql.Stmt.QueryContext`执行，使用方法`orm.DB.Query[E]`创建，其中泛型`E`必须是结构体。
+`Query`执行器使用方法`orm.DB.Query[E]`创建，其中泛型`E`必须是结构体，用于执行SELECT语句，底层使用方法`sql.Stmt.QueryContext`执行。
 
-*执行器方法*
+*参数/方法*
 
 | 方法                              | 描述                                                                                                                        |
 |-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
@@ -27,9 +27,59 @@ users, _ := db.Query[User](nil).BuildSql(func(b *orm.SqlBuilder) {
 }).Do()
 ```
 
-### 获取生成Key
+## Mutation
 
-部分数据库获取生成Key是通过结果集返回，而不是`sql.Result.LastInsertId`方法，例如PostgreSQL、SQL Server，`Query`执行器兼容这种机制，通过`MapTargets`方法将生成的Key映射到实体中。
+`Mutation`执行器使用方法`orm.DB.Mutation`创建，用于执行INSERT、UPDATE和DELETE语句，底层使用方法`sql.Stmt.ExecContext`执行。
+
+*参数/方法*
+
+| 方法                              | 描述                                                                                                                                                                                                                                                                       |
+|-----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `BuildSql(func(*orm.SqlBuilder))` | 构建SQL处理函数，使用`*orm.SqlBuilder`变量拼接SQL，用法详见[[SQL构建器]](../sql_builder)                                                                                                                                                                                   |
+| `MapTo[E]( ...*E)`                | 将`sql.Result.LastInsertId`映射到指定实体。要求必须配置[[获取生成Key模式]](../../config/db/#%E8%8E%B7%E5%8F%96%E7%94%9F%E6%88%90key%E6%A8%A1%E5%BC%8F)为`FirstInsertId`或`LastInsertId`，泛型`E`必须是一个有且仅有一个带有`auto`[[标签]](../../entity/tag)字段的实体类型。 |
+| `Do() (int64, error)`             | 执行SQL并返回影响行数。                                                                                                                                                                                                                                                    |
+
+*Example*
+
+```go   
+affected, _ := db.Mutation(nil).BuildSql(func(b *orm.SqlBuilder) {
+	b.Write("UPDATE user SET name = 'Alice' WHERE id = 1")
+}).Do()
+```
+
+## 获取生成Key
+
+对于支持`sql.Result.LastInsertId`方法的数据库，例如MySQL、SQLite，使用`Mutation`执行器来获取生成的Key。
+
+*Mutation执行器示例*
+
+```go
+users := []*User{
+	{Name: new("Alex"), Email: new("alex@example.com")},
+	{Name: new("John"), Email: new("john@example.com")},
+	{Name: new("Charlie"), Email: new("charlie@example.com")},
+}
+
+sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+
+db := orm.DBConfig{
+	SqlDB:  sqlDB,
+	GetGeneratedKeyMode: orm.GetGeneratedKeyMode_.FirstInsertId,
+}.Build()
+
+db.Mutation(nil).MapTo(users...).BuildSql(func(b *orm.SqlBuilder) {
+	b.Write("INSERT INTO user(name, email) VALUES(?, ?), (?, ?), (?, ?)")
+	for _, user := range users {
+		b.Args(user.Name, user.Email)
+	}
+}).Do()
+
+fmt.Println(users[0].Id)
+fmt.Println(users[1].Id)
+fmt.Println(users[2].Id)
+```
+
+部分数据库的生成Key是通过结果集返回，而不是`sql.Result.LastInsertId`方法，例如PostgreSQL、SQL Server，`Query`执行器兼容这种机制，通过`MapTo`方法将生成的Key映射到实体中。
 
 *Go原生方式示例*
 
@@ -72,8 +122,7 @@ users := []*User{
 sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
 db := orm.DBConfig{
-	SqlDB:  sqlDB,
-	DBType: orm.DBType_.Postgres,
+	SqlDB: sqlDB,
 }.Build()
 
 db.Query[User](nil).MapTo(users...).BuildSql(func(b *orm.SqlBuilder) {
@@ -88,50 +137,8 @@ fmt.Println(users[1].Id)
 fmt.Println(users[2].Id)
 ```
 
-## Mutation
-
-`Mutation`执行器用于执行INSERT、UPDATE和DELETE语句，底层使用方法`sql.Stmt.ExecContext`执行。
-
-*执行器方法*
-
-| 方法                              | 描述                                                                                                                                                                                                                                                                       |
-|-----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `BuildSql(func(*orm.SqlBuilder))` | 构建SQL处理函数，使用`*orm.SqlBuilder`变量拼接SQL，用法详见[[SQL构建器]](../sql_builder)                                                                                                                                                                                   |
-| `MapTo[E]( ...*E)`                | 将`sql.Result.LastInsertId`映射到指定实体。要求必须指定[[获取生成Key模式]](../../config/db/#%E8%8E%B7%E5%8F%96%E7%94%9F%E6%88%90key%E6%A8%A1%E5%BC%8F)为`FirstInsertId`或`LastInsertId`，泛型`E`必须是一个有且仅有一个带有`auto`[[标签]](../../entity/tag)字段的实体类型。 |
-| `Do() (int64, error)`             | 执行SQL并返回影响行数。                                                                                                                                                                                                                                                    |
-
-*Example*
-
-```go   
-affected, _ := db.Mutation(nil).BuildSql(func(b *orm.SqlBuilder) {
-	b.Write("UPDATE user SET name = 'Alice' WHERE id = 1")
-}).Do()
-```
-
-### 获取生成Key
-
-```go
-users := []*User{
-	{Name: new("Alex"), Email: new("alex@example.com")},
-	{Name: new("John"), Email: new("john@example.com")},
-	{Name: new("Charlie"), Email: new("charlie@example.com")},
-}
-
-sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
-
-db := orm.DBConfig{
-	SqlDB:  sqlDB,
-	GetGeneratedKeyMode: orm.GetGeneratedKeyMode_.FirstInsertId,
-}.Build()
-
-db.Mutation(nil).MapTo(users...).BuildSql(func(b *orm.SqlBuilder) {
-	b.Write("INSERT INTO user(name, email) VALUES(?, ?), (?, ?), (?, ?)")
-	for _, user := range users {
-		b.Args(user.Name, user.Email)
-	}
-}).Do()
-
-fmt.Println(users[0].Id)
-fmt.Println(users[1].Id)
-fmt.Println(users[2].Id)
-```
+> [!WARNING]
+>
+> 一些处理插入冲突的数据库方言可能导致获取的Key不准确，例如：
+> * MySQL：`ON DUPLICATE KEY UPDATE ...`
+> * SQLite、PostgreSQL：{{< html >}}<code>ON&nbsp;CONFLICT&nbsp;...&nbsp;DO&nbsp;...</code>{{< /html >}}。

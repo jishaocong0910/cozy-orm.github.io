@@ -1,17 +1,17 @@
 ---
-title: 参数
+title: 公共参数
 weight: 1
 ---
 
-# 参数
+# 公共参数
 
-所有执行器都具有一个参数`ctx context.Context`，它会透传到[[日志记录器]](../../log/logger)、[[字段策略]](../../config/column_policy)，用于[[事务传播]](../../transaction/propagation)，若为`nil`会使用`context.Background()`创建默认值。`ctx`是非常重要的参数，因此设计为执行器本身的参数。
+所有执行器都具有一个参数`ctx context.Context`，它会透传到[[日志记录器]](../../log/logger)、[[字段策略]](../../config/column_policy)，用于[[事务传播]](../../transaction/propagation)，若为`nil`会使用`context.Background()`创建默认值。`ctx`是非常重要的参数，因此设计为在创建执行器时传入。
 
 除了`ctx`之外，其他参数都是通过链式调用方法进行设置，所有执行器都具有的以下设置参数的方法。
 
 | 方法                     | 描述                                                                                                                                                                      |
 |--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Must()`                 | 执行器默认会将错误返回，此参数会直接panic。                                                                                                                               |
+| `Must()`                 | 默认会将错误返回，此参数会直接panic。                                                                                                                                     |
 | `Description(string)`    | 用于描述SQL业务，打印在SQL日志里。                                                                                                                                        |
 | `SqlLogLevel(orm.Level)` | 指定SQL日志的级别，通过[[枚举]](../../config/db#%E6%9E%9A%E4%B8%BE)`orm.Level_`选择，优先级高于[[DB配置]](../../config/db)。指定为`orm.Level_.UNDEFINED`可以关闭SQL日志。 |
 
