@@ -37,13 +37,13 @@ CozyORM中以下划线结尾的全局变量为枚举。通过`.`获取枚举选�
 
 `orm.GetGeneratedKeyMode_`有以下选项，其中基础执行器`Mutation`只支持`FirstInsertId`和`LastInsertId`，高级执行器`Insert`支持所有。
 
-| 选项            | 描述                                                                                               |
-|-----------------|----------------------------------------------------------------------------------------------------|
-| FirstInsertId   | 将`sql.Result.LastInsertId()`的返回值作为第一个插入记录的ID，可适配MySQL。                         |
-| LastInsertId    | 将`sql.Result.LastInsertId()`的返回值作为最后一个插入记录的ID，可适配SQLite。                      |
-| InsertReturning | 通过语法`INSERT ... RETURNING ...`返回自动生成Key，可适配PostgreSQL、SQLite。                      |
-| SQLServer       | 通过SQL Server方言`INSERT ... OUTPUT {INSERTED.<column>} ...`返回自动生成Key，专门适配SQL Server。 |
-| Oracle          | 通过Oracle的方言`INSERT ... RETURNING ... INTO ...`返回自动生成Key，专门适配Oracle。               |
+| 选项            | 描述                                                                                 |
+|-----------------|--------------------------------------------------------------------------------------|
+| FirstInsertId   | 将`sql.Result.LastInsertId()`的返回值作为第一个插入记录的ID，可适配MySQL。           |
+| LastInsertId    | 将`sql.Result.LastInsertId()`的返回值作为最后一个插入记录的ID，可适配SQLite。        |
+| InsertReturning | 通过语法`INSERT ... RETURNING ...`返回自动生成Key，可适配PostgreSQL、SQLite。        |
+| SQLServer       | 通过SQL Server方言`INSERT ... OUTPUT ...`返回自动生成Key，专门适配SQL Server。       |
+| Oracle          | 通过Oracle的方言`INSERT ... RETURNING ... INTO ...`返回自动生成Key，专门适配Oracle。 |
 
 ## 分页模式
 
