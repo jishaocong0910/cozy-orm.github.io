@@ -19,19 +19,24 @@ weight: 3
 *Example*
 
 ```go
-emails, _ := db.Query[orm.Tuple2[int64, *string]](nil).BuildSql(func(b *orm.SQLBuilder) {
-	b.Write("SELECT id, email FROM user WHERE id IN(1, 2, 3)")
-}).Do()
+func main() {
+	// ...
 
-for _, name := range emails {
-	fmt.Println(name.Field1, name.Field2)
-}
+	emails, _ := db.Query[orm.Tuple2[int64, *string]](nil).BuildSql(func(b *orm.SQLBuilder) {
+		b.Write("SELECT id, email FROM user WHERE id IN(1, 2, 3)")
+	}).Do()
 
-orders, _ := db.Query[orm.Tuple3[int64, int64, int64]](nil).BuildSql(func(b *orm.SQLBuilder) {
-	b.Write("SELECT user_id, COUNT(*), SUM(order_amount) FROM orders " +
-		"WHERE status = 'paid' AND user_id IN(1, 2, 3) GROUP BY user_id")
+	for _, name := range emails {
+		fmt.Println(name.Field1, name.Field2)
+	}
 
-for _, order := range orders {
-	fmt.Println(order.Field1, order.Field2, order.Field3)
+	orders, _ := db.Query[orm.Tuple3[int64, int64, int64]](nil).BuildSql(func(b *orm.SQLBuilder) {
+		b.Write("SELECT user_id, COUNT(*), SUM(order_amount) FROM orders " +
+			"WHERE status = 'paid' AND user_id IN(1, 2, 3) GROUP BY user_id")
+	}).Do()
+
+	for _, order := range orders {
+		fmt.Println(order.Field1, order.Field2, order.Field3)
+	}
 }
 ```

@@ -14,7 +14,7 @@ weight: 3
 | 参数                        | 描述                                                                               |
 |-----------------------------|------------------------------------------------------------------------------------|
 | `Select(...string)`         | 查询的表字段，默认为所有字段。                                                     |
-| `OnDemand(*orm.Demand)`     | 按需指定查询的表字段，详见[[按需字段]](../on_demand_columns)。                     |
+| `OnDemand(*orm.Demand)`     | 按需指定查询的表字段，详见[[按需字段]](#按需字段)。                                |
 | `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。                                         |
 | `OrderBy(*orm.orderBy)`     | 排序，使用`orm.OrderBy()`创建并链式指定排序的字段。                                |
 | `Page(*orm.page)`           | 分页，使用`orm.Page(int, int)`创建，需配置[[分页模式]](../../config/db#分页模式)。 |
@@ -25,17 +25,24 @@ weight: 3
 *Example*
 
 ```go
-sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+type User struct {
+	Id      *int64
+	Name    *string
+}
 
-db := orm.DBConfig{
-	SqlDB:  sqlDB,
-	DBType: orm.DBType_.MySQL, //该参数会自动配置对应的分页模式
-}.Build()
+func main() {
+	sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
-users, _ := db.Find[User](nil).Select("id, name").Condition(orm.Cond().Gt("id", 10)).
-	OrderBy(orm.OrderBy().Asc("id")).Page(orm.Page(0, 10)).LastClause("FOR UPDATE").Do()
-// 执行SQL:
-// SELECT id, name FROM user WHERE id > 10 ORDER BY id ASC LIMIT 10 FOR UPDATE
+	db := orm.DBConfig{
+		SqlDB:  sqlDB,
+		DBType: orm.DBType_.MySQL, //自动配置分页模式
+	}.Build()
+
+	users, _ := db.Find[User](nil).Select("id, name").Condition(orm.Cond().Gt("id", 10)).
+		OrderBy(orm.OrderBy().Asc("id")).Page(orm.Page(0, 10)).LastClause("FOR UPDATE").Do()
+	// 执行SQL:
+	// SELECT id, name FROM user WHERE id > 10 ORDER BY id ASC LIMIT 10 FOR UPDATE
+}
 ```
 
 ## FindOne
@@ -72,13 +79,15 @@ func main() {
 
 	db := orm.DBConfig{
 		SqlDB:       sqlDB,
-		DBType:      orm.DBType_.Postgres, //该参数会自动配置对应的获取生成Key模式
+		DBType:      orm.DBType_.Postgres, //自动配置获取生成Key模式
 	}.Build()
 
 	user := &User{Name: new("Alex")}
+	
 	db.Insert[User](nil).Entities(user).Required("status").Do()
 	// 执行SQL:
 	// INSERT INTO user(name, status) VALUES('Alex', NULL) RETURNING id
+	
 	fmt.Println(*user.Id) //打印生成的ID
 
 	/* 插入多个实体以首个实体的非nil字段为准 */
@@ -107,7 +116,7 @@ func main() {
 |-----------------------------|--------------------------------------------------------------------------------------------------------|
 | `Entity(*E)`                | 更新的实体，只会更新非`nil`字段，带`pk`[[标签]](../../entity/tag)的字段例外，非`nil`时会自动作为条件。 |
 | `Required(...string)`       | 必定会更新的字段，若值为`nil`，则插入`null`。                                                          |
-| `OnDemand(*orm.Demand)`     | 按需指定更新的表字段，详见[[按需字段]](../on_demand_columns)。                                         |
+| `OnDemand(*orm.Demand)`     | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                    |
 | `Set(string, any)`          | 设置字段的更新值。                                                                                     |
 | `SetRaw(string, string)`    | 设置字段更新为指定的原生SQL表达式。                                                                    |
 | `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。                                                             |
@@ -155,7 +164,7 @@ func main() {
 |-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | `Entities(... *E)`          | 更新的实体，只会更新非`nil`字段，带`pk`[[标签]](../../entity/tag)的字段例外，会自动作为更新条件，若更新多个实体，则以首个实体的非nil字段为准。 |
 | `Required(...string)`       | 必定会更新的字段，若值为`nil`，则插入`null`。                                                                                                  |
-| `OnDemand(*orm.Demand)`     | 按需指定更新的表字段，详见[[按需字段]](../on_demand_columns)。                                                                                 |
+| `OnDemand(*orm.Demand)`     | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                                                            |
 | `Set(string, any)`          | 设置字段的更新值。                                                                                                                             |
 | `SetRaw(string, string)`    | 设置字段更新为指定的原生SQL表达式。                                                                                                            |
 | `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。                                                                                                     |
@@ -269,6 +278,8 @@ func main() {
 }
 ```
 
+## 按需字段
+
 ## 更新字段优先级
 
 以下字段一定出现在`Update`和`UpdateRow`执行器的更新字段列表中：
@@ -280,7 +291,7 @@ func main() {
 
 1. 字段策略为强制的赋值。
 2. `Set`、`SetRaw`参数指定的值。
-3. 实体的字段的值。
+3. 非`nil`的实体字段值。
 4. 字段策略非强制的赋值。
 
 

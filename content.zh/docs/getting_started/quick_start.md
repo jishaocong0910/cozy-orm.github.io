@@ -26,6 +26,22 @@ import (
 	orm "github.com/jishaocong0910/cozy-orm"
 )
 
+/*
+-- MySQL init script
+
+CREATE TABLE `user` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `name` varchar(20) DEFAULT NULL,
+  `age` int DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `email` varchar(20) DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  `level` tinyint DEFAULT NULL,
+  `create_at` datetime(3) DEFAULT NULL
+);
+*/
+
 type User struct {
 	Id       *int64 `orm:"pk;auto"`
 	Name     *string
@@ -115,6 +131,22 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	orm "github.com/jishaocong0910/cozy-orm"
 )
+
+/*
+-- MySQL init script
+
+CREATE TABLE `user` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `name` varchar(20) DEFAULT NULL,
+  `age` int DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `email` varchar(20) DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  `level` tinyint DEFAULT NULL,
+  `create_at` datetime(3) DEFAULT NULL
+);
+*/
 
 type User struct {
 	Id       *int64 `orm:"pk;auto"`

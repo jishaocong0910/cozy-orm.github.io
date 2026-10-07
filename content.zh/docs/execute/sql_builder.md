@@ -21,11 +21,6 @@ type User struct {
 	Status *int8
 }
 
-func param(i *int) string {
-	*i++
-	return "$" + strconv.Itoa(*i)
-}
-
 func main() {
 	sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
@@ -41,31 +36,31 @@ func main() {
 	}
 
 	db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
-		var i int
+		i := 1
+		sep := " "
 		b.Write("Update user SET")
 		if user.Name != nil {
-			b.Write(" name = "+param(&i), user.Name)
+			b.Write(sep).Write("name = $"+strconv.Itoa(i), user.Name)
+			i++
+			sep = ", "
 		}
 		if user.Email != nil {
-			if i > 0 {
-				b.Write(",")
-			}
-			b.Write(" email = "+param(&i), user.Email)
+			b.Write(sep).Write("email = $"+strconv.Itoa(i), user.Email)
+			i++
+			sep = ", "
 		}
 		if user.Status != nil {
-			if i > 0 {
-				b.Write(",")
-			}
-			b.Write(" status = "+param(&i), user.Status)
+			b.Write(sep).Write("status = $"+strconv.Itoa(i), user.Status)
+			i++
+			sep = ", "
 		}
-		b.Write(" WHERE id = "+param(&i), user.Id)
+		b.Write(" WHERE id = $"+strconv.Itoa(i), user.Id)
 	}).Do()
 	// 执行SQL：
 	// Update user SET name = $1, email = $2 WHERE id = $3
 	//
-	// $1: Alex
-	// $2: alex@example.com
-	// $3: 1
+    // 参数：
+    // $1="Alex" $2="alex@example.com" $3=1
 }
 ```
 ## WritePh
@@ -87,7 +82,7 @@ func main() {
 
 	db := orm.DBConfig{
 		SqlDB:  sqlDB,
-		DBType: orm.DBType_.Postgres, // 该参数会自动配置对应的参数占位符前缀
+		DBType: orm.DBType_.Postgres, // 自动配置参数占位符前缀
 	}.Build()
 
 	user := &User{
@@ -97,28 +92,27 @@ func main() {
 	}
 
 	db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
-		sep := ""
+		sep := " "
 		b.Write("Update user SET")
 		if user.Name != nil {
-			b.Write(" name = ").WritePh().AddArgs(user.Name)
-			sep = ","
+			b.Write(sep).Write("name = ").WritePh().AddArgs(user.Name)
+			sep = ", "
 		}
 		if user.Email != nil {
-			b.Write(sep).Write(" email = ").WritePh().AddArgs(user.Email)
-			sep = ","
+			b.Write(sep).Write("email = ").WritePh().AddArgs(user.Email)
+			sep = ", "
 		}
 		if user.Status != nil {
-			b.Write(sep).Write(" status = ").WritePh().AddArgs(user.Status)
-			sep = ","
+			b.Write(sep).Write("status = ").WritePh().AddArgs(user.Status)
+			sep = ", "
 		}
 		b.Write(" WHERE id = ").WritePh().AddArgs(user.Id)
 	}).Do()
 	// 执行SQL：
 	// Update user SET name = $1, email = $2 WHERE id = $3
 	//
-	// $1: Alex
-	// $2: alex@example.com
-	// $3: 1
+    // 参数：
+	// $1="Alex" $2="alex@example.com" $3=1
 }
 ```
 
@@ -141,7 +135,7 @@ func main() {
 
 	db := orm.DBConfig{
 		SqlDB:       sqlDB,
-		DBType:      orm.DBType_.Postgres, // 该参数会自动配置对应的引用标识符
+		DBType:      orm.DBType_.Postgres, // 自动配置引用标识符
 	}.Build()
 
 	user := &User{
@@ -151,28 +145,27 @@ func main() {
 	}
 
 	db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
-		sep := ""
+		sep := " "
 		b.Write("Update user SET")
 		if user.Name != nil {
-			b.Write(" ").WriteColumn("name").Write(" = ").WritePh().AddArgs(user.Name)
-			sep = ","
+			b.Write(sep).WriteColumn("name").Write(" = ").WritePh().AddArgs(user.Name)
+			sep = ", "
 		}
 		if user.Email != nil {
-			b.Write(sep).Write(" ").WriteColumn("email").Write(" = ").WritePh().AddArgs(user.Email)
-			sep = ","
+			b.Write(sep).WriteColumn("email").Write(" = ").WritePh().AddArgs(user.Email)
+			sep = ", "
 		}
 		if user.Status != nil {
-			b.Write(sep).Write(" ").WriteColumn("status").Write(" = ").WritePh().AddArgs(user.Status)
-            sep = ","
+			b.Write(sep).WriteColumn("status").Write(" = ").WritePh().AddArgs(user.Status)
+			sep = ", "
 		}
 		b.Write(" WHERE ").WriteColumn("id").Write(" = ").WritePh().AddArgs(user.Id)
 	}).Do()
 	// 执行SQL：
 	// Update user SET "name" = $1, "email" = $2 WHERE "id" = $3
 	//
-	// $1: Alex
-	// $2: alex@example.com
-	// $3: 1
+    // 参数：
+    // $1="Alex" $2="alex@example.com" $3=1
 }
 ```
 
@@ -204,27 +197,31 @@ db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
 *Example*
 
 ```go
-columns := []string{"id", "name", "email"}
-ids := []int64{1, 2, 3}
-var status []int8
+func main() {
+	// ...
 
-db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
-	b.Write("SELECT ").ForEach(b.Sep(", "), columns, func(_ int, item string) {
-		b.Write(item)
-	})
-	b.Write(" FROM user WHERE id IN").ForEach(b.SepWrap("(", ", ", ")"), ids, func(i int, item int64) {
-		b.Write("$"+strconv.Itoa(i+1), item)
-	})
-	b.ForEach(b.SepWrapOpt("AND status IN(", ", ", " )"), status, func(i int, item int8) {
-		b.Write("$"+strconv.Itoa(i+1), item)
-	})
-}).Do()
-// 执行SQL：
-// SELECT id, name, email FROM user WHERE id IN($1, $2, $3)
-//
-// $1: 1
-// $2: 2
-// $3: 3
+	columns := []string{"id", "name", "email"}
+	ids := []int64{1, 2, 3}
+	var status []int8
+
+	db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
+		b.Write("SELECT ").ForEach(b.Sep(", "), columns, func(_ int, item string) {
+			b.Write(item)
+		})
+		b.Write(" FROM user WHERE id IN")
+		b.ForEach(b.SepWrap("(", ", ", ")"), ids, func(_ int, item int64) {
+			b.Write("?").AddArgs(item)
+		})
+		b.ForEach(b.SepWrapOpt("AND status IN(", ", ", " )"), status, func(_ int, item int8) {
+			b.Write("?").AddArgs(item)
+		})
+	}).Do()
+	// 执行SQL：
+	// SELECT id, name, email FROM user WHERE id IN(?, ?, ?)
+	//
+	// 参数：
+	// 1 2 3
+}
 ```
 
 ## Accept
@@ -266,19 +263,23 @@ func main() {
 *Example*
 
 ```go
-var ids []int64
+func main() {
+	// ...
 
-users, err := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
-	if len(ids) == 0 {
-		b.Cancel()
-		return
-	}
-	b.Write("SELECT id, name, email FROM user WHERE id IN")
-	b.ForEach(b.SepWrap("(", ",", ")"), ids, func(_ int, item int64) {
-		b.WritePh().AddArgs(item)
-	})
-}).Do()
-// users=[]*User{}，err=nil
+	var ids []int64
+
+	users, err := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
+		if len(ids) == 0 {
+			b.Cancel()
+			return
+		}
+		b.Write("SELECT id, name, email FROM user WHERE id IN")
+		b.ForEach(b.SepWrap("(", ",", ")"), ids, func(_ int, item int64) {
+			b.WritePh().AddArgs(item)
+		})
+	}).Do()
+	// users=[]*User{}, err=nil
+}
 ```
 
 ## Error
@@ -288,17 +289,21 @@ users, err := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
 *Example*
 
 ```go
-var ids []int64
+func main() {
+	// ...
 
-users, err := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
-	if len(ids) == 0 {
-		b.Error(errors.New("ids is empty"))
-		return
-	}
-	b.Write("SELECT id, name, email FROM user WHERE id IN")
-	b.ForEach(b.SepWrap("(", ",", ")"), ids, func(_ int, item int64) {
-		b.WritePh().AddArgs(item)
-	})
-}).Do()
-// users=[]*User{}，err="ids is empty"
+	var ids []int64
+
+	users, err := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
+		if len(ids) == 0 {
+			b.Error(errors.New("ids is empty"))
+			return
+		}
+		b.Write("SELECT id, name, email FROM user WHERE id IN")
+		b.ForEach(b.SepWrap("(", ",", ")"), ids, func(_ int, item int64) {
+			b.WritePh().AddArgs(item)
+		})
+	}).Do()
+	// users=[]*User{}, err="ids is empty"
+}
 ```

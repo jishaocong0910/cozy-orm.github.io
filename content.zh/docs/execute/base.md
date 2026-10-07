@@ -50,29 +50,37 @@ affected, _ := db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
 *Mutation执行器示例*
 
 ```go
-users := []*User{
-	{Name: new("Alex"), Email: new("alex@example.com")},
-	{Name: new("John"), Email: new("john@example.com")},
-	{Name: new("Charlie"), Email: new("charlie@example.com")},
+type User struct {
+	Id    *int64
+	Name  *string
+	Email *string
 }
 
-sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+func main() {
+	sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
-db := orm.DBConfig{
-	SqlDB:  sqlDB,
-	GetGeneratedKeyMode: orm.GetGeneratedKeyMode_.FirstInsertId,
-}.Build()
+	db := orm.DBConfig{
+		SqlDB:               sqlDB,
+		GetGeneratedKeyMode: orm.GetGeneratedKeyMode_.FirstInsertId,
+	}.Build()
 
-db.Mutation(nil).MapTo(users...).BuildSql(func(b *orm.SQLBuilder) {
-	b.Write("INSERT INTO user(name, email) VALUES(?, ?), (?, ?), (?, ?)")
-	for _, user := range users {
-		b.Args(user.Name, user.Email)
+	users := []*User{
+		{Name: new("Alex"), Email: new("alex@example.com")},
+		{Name: new("John"), Email: new("john@example.com")},
+		{Name: new("Charlie"), Email: new("charlie@example.com")},
 	}
-}).Do()
 
-fmt.Println(users[0].Id)
-fmt.Println(users[1].Id)
-fmt.Println(users[2].Id)
+	db.Mutation(nil).MapTo(users...).BuildSql(func(b *orm.SQLBuilder) {
+		b.Write("INSERT INTO user(name, email) VALUES(?, ?), (?, ?), (?, ?)")
+		for _, user := range users {
+			b.AddArgs(user.Name, user.Email)
+		}
+	}).Do()
+
+	fmt.Println(users[0].Id)
+	fmt.Println(users[1].Id)
+	fmt.Println(users[2].Id)
+}
 ```
 
 部分数据库的生成Key是通过结果集返回，而不是`sql.Result.LastInsertId`方法，例如PostgreSQL、SQL Server，`Query`执行器兼容这种机制，通过`MapTo`方法将生成的Key映射到实体中。
@@ -80,57 +88,73 @@ fmt.Println(users[2].Id)
 *Go原生方式示例*
 
 ```go
-users := []*User{
-	{Name: new("Alex"), Email: new("alex@example.com")},
-	{Name: new("John"), Email: new("john@example.com")},
-	{Name: new("Charlie"), Email: new("charlie@example.com")},
+type User struct {
+	Id    *int64
+	Name  *string
+	Email *string
 }
 
-sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+func main() {
+	sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
-rows, err := sqlDB.Query("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id",
-	users[0].Name, users[0].Email, users[1].Name, users[1].Email, users[2].Name, users[2].Email)
-if err != nil {
-	panic(err)
+	users := []*User{
+		{Name: new("Alex"), Email: new("alex@example.com")},
+		{Name: new("John"), Email: new("john@example.com")},
+		{Name: new("Charlie"), Email: new("charlie@example.com")},
+	}
+
+	rows, err := sqlDB.Query("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id",
+		users[0].Name, users[0].Email, users[1].Name, users[1].Email, users[2].Name, users[2].Email)
+	if err != nil {
+		panic(err)
+	}
+
+	var ids []int64
+	for i := 0; rows.Next(); i++ {
+		var id int64
+		rows.Scan(&id)
+		ids = append(ids, id)
+	}
+
+	fmt.Println(ids[0])
+	fmt.Println(ids[1])
+	fmt.Println(ids[2])
 }
-
-var ids []int64
-for i := 0; rows.Next(); i++ {
-	var id int64
-	rows.Scan(&id)
-	ids = append(ids, id)
-}
-
-fmt.Println(ids[0])
-fmt.Println(ids[1])
-fmt.Println(ids[2])
 ```
 
 *Query执行器示例*
 
 ```go
-users := []*User{
-	{Name: new("Alex"), Email: new("alex@example.com")},
-	{Name: new("John"), Email: new("john@example.com")},
-	{Name: new("Charlie"), Email: new("charlie@example.com")},
+type User struct {
+	Id    *int64
+	Name  *string
+	Email *string
 }
 
-sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+func main() {
+	sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
-db := orm.DBConfig{
-	SqlDB: sqlDB,
-}.Build()
+	db := orm.DBConfig{
+		SqlDB: sqlDB,
+	}.Build()
 
-db.Query[User](nil).MapTo(users...).BuildSql(func(b *orm.SQLBuilder) {
-	b.Write("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id")
-	for _, user := range users {
-		b.Args(user.Name, user.Email)
+	users := []*User{
+		{Name: new("Alex"), Email: new("alex@example.com")},
+		{Name: new("John"), Email: new("john@example.com")},
+		{Name: new("Charlie"), Email: new("charlie@example.com")},
 	}
-}).Do()
 
-fmt.Println(users[0].Id)
-fmt.Println(users[1].Id)
-fmt.Println(users[2].Id)
+	db.Query[User](nil).MapTo(users...).BuildSql(func(b *orm.SQLBuilder) {
+		b.Write("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id")
+		for _, user := range users {
+			b.AddArgs(user.Name, user.Email)
+		}
+	}).Do()
+
+	fmt.Println(users[0].Id)
+	fmt.Println(users[1].Id)
+	fmt.Println(users[2].Id)
+}
 ```
 
 > [!WARNING]
