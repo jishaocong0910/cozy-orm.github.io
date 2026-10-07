@@ -13,14 +13,14 @@ weight: 2
 
 | 参数                              | 描述                                                                                                                        |
 |-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `BuildSql(func(*orm.SqlBuilder))` | 构建SQL处理函数，使用`*orm.SqlBuilder`变量拼接SQL，用法详见[[SQL构建器]](../sql_builder)                                    |
+| `BuildSql(func(*orm.SQLBuilder))` | 构建SQL处理函数，使用`*orm.SQLBuilder`变量拼接SQL，用法详见[[SQL构建器]](../sql_builder)                                    |
 | `MapTo(...*E)`                    | 将查询结果映射到指定的实体，指定后`Do`方法将不会再返回查询结果。其设计目的是：兼容部分数据库通过查询结果获取生成Key的机制。 |
 | `Do() ([]*E, error)`              | 执行SQL并返回映射的实体。                                                                                                   |
 
 *Example*
 
 ```go
-users, _ := db.Query[User](nil).BuildSql(func(b *orm.SqlBuilder) {
+users, _ := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
 	b.Write("SELECT id, name, email FROM user WHERE id = 1")
 }).Do()
 ```
@@ -31,14 +31,14 @@ users, _ := db.Query[User](nil).BuildSql(func(b *orm.SqlBuilder) {
 
 | 参数                              | 描述                                                                                                                                                                                                                           |
 |-----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `BuildSql(func(*orm.SqlBuilder))` | 构建SQL处理函数，使用`*orm.SqlBuilder`变量拼接SQL，用法详见[[SQL构建器]](../sql_builder)                                                                                                                                       |
+| `BuildSql(func(*orm.SQLBuilder))` | 构建SQL处理函数，使用`*orm.SQLBuilder`变量拼接SQL，用法详见[[SQL构建器]](../sql_builder)                                                                                                                                       |
 | `MapTo[E]( ...*E)`                | 将`sql.Result.LastInsertId`映射到指定实体。要求必须配置[[获取生成Key模式]](../../config/db/#获取生成key模式)为`FirstInsertId`或`LastInsertId`，泛型`E`必须是一个有且仅有一个带`auto`[[标签]](../../entity/tag)字段的实体类型。 |
 | `Do() (int64, error)`             | 执行SQL并返回影响行数。                                                                                                                                                                                                        |
 
 *Example*
 
 ```go   
-affected, _ := db.Mutation(nil).BuildSql(func(b *orm.SqlBuilder) {
+affected, _ := db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
 	b.Write("UPDATE user SET name = 'Alice' WHERE id = 1")
 }).Do()
 ```
@@ -63,7 +63,7 @@ db := orm.DBConfig{
 	GetGeneratedKeyMode: orm.GetGeneratedKeyMode_.FirstInsertId,
 }.Build()
 
-db.Mutation(nil).MapTo(users...).BuildSql(func(b *orm.SqlBuilder) {
+db.Mutation(nil).MapTo(users...).BuildSql(func(b *orm.SQLBuilder) {
 	b.Write("INSERT INTO user(name, email) VALUES(?, ?), (?, ?), (?, ?)")
 	for _, user := range users {
 		b.Args(user.Name, user.Email)
@@ -121,7 +121,7 @@ db := orm.DBConfig{
 	SqlDB: sqlDB,
 }.Build()
 
-db.Query[User](nil).MapTo(users...).BuildSql(func(b *orm.SqlBuilder) {
+db.Query[User](nil).MapTo(users...).BuildSql(func(b *orm.SQLBuilder) {
 	b.Write("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id")
 	for _, user := range users {
 		b.Args(user.Name, user.Email)

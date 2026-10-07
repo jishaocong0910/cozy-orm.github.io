@@ -14,7 +14,7 @@ weight: 3
 | 参数                        | 描述                                                                               |
 |-----------------------------|------------------------------------------------------------------------------------|
 | `Select(...string)`         | 查询的表字段，默认为所有字段。                                                     |
-| `OnDemand(*orm.Demand)`     | 按需指定查询的字段，详见[[按需字段]](../on_demand_columns)。                       |
+| `OnDemand(*orm.Demand)`     | 按需指定查询的表字段，详见[[按需字段]](../on_demand_columns)。                     |
 | `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。                                         |
 | `OrderBy(*orm.orderBy)`     | 排序，使用`orm.OrderBy()`创建并链式指定排序的字段。                                |
 | `Page(*orm.page)`           | 分页，使用`orm.Page(int, int)`创建，需配置[[分页模式]](../../config/db#分页模式)。 |
@@ -107,7 +107,7 @@ func main() {
 |-----------------------------|--------------------------------------------------------------------------------------------------------|
 | `Entity(*E)`                | 更新的实体，只会更新非`nil`字段，带`pk`[[标签]](../../entity/tag)的字段例外，非`nil`时会自动作为条件。 |
 | `Required(...string)`       | 必定会更新的字段，若值为`nil`，则插入`null`。                                                          |
-| `OnDemand(*orm.Demand)`     | 按需指定更新的字段，详见[[按需字段]](../on_demand_columns)。                                           |
+| `OnDemand(*orm.Demand)`     | 按需指定更新的表字段，详见[[按需字段]](../on_demand_columns)。                                         |
 | `Set(string, any)`          | 设置字段的更新值。                                                                                     |
 | `SetRaw(string, string)`    | 设置字段更新为指定的原生SQL表达式。                                                                    |
 | `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。                                                             |
@@ -155,7 +155,7 @@ func main() {
 |-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | `Entities(... *E)`          | 更新的实体，只会更新非`nil`字段，带`pk`[[标签]](../../entity/tag)的字段例外，会自动作为更新条件，若更新多个实体，则以首个实体的非nil字段为准。 |
 | `Required(...string)`       | 必定会更新的字段，若值为`nil`，则插入`null`。                                                                                                  |
-| `OnDemand(*orm.Demand)`     | 按需指定更新的字段，详见[[按需字段]](../on_demand_columns)。                                                                                   |
+| `OnDemand(*orm.Demand)`     | 按需指定更新的表字段，详见[[按需字段]](../on_demand_columns)。                                                                                 |
 | `Set(string, any)`          | 设置字段的更新值。                                                                                                                             |
 | `SetRaw(string, string)`    | 设置字段更新为指定的原生SQL表达式。                                                                                                            |
 | `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。                                                                                                     |

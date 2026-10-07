@@ -19,7 +19,7 @@ weight: 3
 *Example*
 
 ```go
-emails, _ := db.Query[orm.Tuple2[int64, *string]](nil).BuildSql(func(b *orm.SqlBuilder) {
+emails, _ := db.Query[orm.Tuple2[int64, *string]](nil).BuildSql(func(b *orm.SQLBuilder) {
 	b.Write("SELECT id, email FROM user WHERE id IN(1, 2, 3)")
 }).Do()
 
@@ -27,7 +27,7 @@ for _, name := range emails {
 	fmt.Println(name.Field1, name.Field2)
 }
 
-orders, _ := db.Query[orm.Tuple3[int64, int64, int64]](nil).BuildSql(func(b *orm.SqlBuilder) {
+orders, _ := db.Query[orm.Tuple3[int64, int64, int64]](nil).BuildSql(func(b *orm.SQLBuilder) {
 	b.Write("SELECT user_id, COUNT(*), SUM(order_amount) FROM orders " +
 		"WHERE status = 'paid' AND user_id IN(1, 2, 3) GROUP BY user_id")
 

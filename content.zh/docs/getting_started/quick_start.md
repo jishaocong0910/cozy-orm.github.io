@@ -62,7 +62,7 @@ func main() {
 		Level:    new(int8(0)),
 		CreateAt: new(time.Now()),
 	}
-	affected, err := db.Mutation(nil).MapTo[User](u).BuildSql(func(b *orm.SqlBuilder) {
+	affected, err := db.Mutation(nil).MapTo[User](u).BuildSql(func(b *orm.SQLBuilder) {
 		b.Write("INSERT INTO user(name, email, phone, age, address, status, level, create_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
 			u.Name, u.Email, u.Phone, u.Age, u.Address, u.Status, u.Level, u.CreateAt)
 	}).Do()
@@ -72,7 +72,7 @@ func main() {
 	fmt.Printf("affected: %d, id: %d\n", affected, *u.Id) // auto increment key
 
 	// query
-	u2, err := db.Query[User](nil).BuildSql(func(b *orm.SqlBuilder) {
+	u2, err := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
 		b.Write("SELECT * FROM user WHERE id = ?", u.Id)
 	}).Do()
 	if err != nil {
@@ -82,7 +82,7 @@ func main() {
 	fmt.Println(string(j))
 
 	// update
-	affected, err = db.Mutation(nil).BuildSql(func(b *orm.SqlBuilder) {
+	affected, err = db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
 		b.Write("UPDATE user SET status = ?, level = ? WHERE id = ?", 2, 1, u.Id)
 	}).Do()
 	if err != nil {
@@ -91,7 +91,7 @@ func main() {
 	fmt.Println("affected:", affected)
 
 	// delete
-	affected, err = db.Mutation(nil).BuildSql(func(b *orm.SqlBuilder) {
+	affected, err = db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
 		b.Write("DELETE FROM user WHERE id = ?", u.Id)
 	}).Do()
 	if err != nil {
