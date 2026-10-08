@@ -392,10 +392,7 @@ func main() {
 		// 执行SQL:
 		// UPDATE user SET name = ?, avatar_url = ?, email = ? WHERE id = ?
 	})
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		panic(err)
-	}
+	http.ListenAndServe(":8080", nil)
 }
 ```
 
