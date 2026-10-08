@@ -175,12 +175,12 @@ func main() {
 
 ```go
 type User struct {
-	Id       *int64 `orm:"pk"`
-	Name     *string
-	Email    *string
-	Role     *string
-	Status   *int8
-	UpdateAt *time.Time
+	Id        *int64 `orm:"pk"`
+	Name      *string
+	Email     *string
+	AvatarUrl *string
+	Status    *int8
+	UpdateAt  *time.Time
 }
 
 func main() {
@@ -192,9 +192,18 @@ func main() {
 	}.Build()
 
 	users := []*User{
-		{Id: new(int64(1)), Name: new("Alex"), Email: new("alex@example.com")},
-		{Id: new(int64(2)), Name: new("John"), Email: new("john@example.com")},
-		{Id: new(int64(3)), Name: new("Charlie"), Role: new("admin")}, //以首个实体非nil字段为准，因此该实体的role字段不会被更新
+		{
+			Id: new(int64(1)), Name: new("Alex"),
+			Email: new("alex@example.com"),
+		},
+		{
+			Id: new(int64(2)), Name: new("John"),
+			Email: new("john@example.com"),
+		},
+		{
+			Id: new(int64(3)), Name: new("Charlie"),
+			AvatarUrl: new("https://example.com/avatar.jpg"), //以首个实体非nil字段为准，因此字段不会被更新。
+		},
 	}
 
 	affected, _ := db.UpdateRow[User](nil).Entities(users...).Required("status").
@@ -279,6 +288,116 @@ func main() {
 ```
 
 ## 按需字段
+
+高级执行器的查询和更新操作，可通过任意结构体来确定需要查询/更新的字段。这个结构体对于查询操作来说，是一个最终会被映射的目标，对于更新操作来说，是更新数据的来源。
+
+执行器的`OnDemand`参数用于设置字段需求，字段需求通过`orm.DemandFor[D]()`创建。`D`为结构体，与执行器的泛型`E`（实体）具有相同名称的字段将被作为需求字段。
+
+*按需查询示例*
+
+假设有个Http接口用于查询简单的用户信息，则可根据接口的响应体来确定查询字段。
+
+```go
+// user表实体
+type User struct {
+	_         struct{}   `orm:"table=user"`
+	Id        *int64     `orm:"column=id;pk"`
+	Name      *string    `orm:"column=name"`
+    AvatarUrl *string    `orm:"column=avatar_url"`
+	Email     *string    `orm:"column=email"`
+	Status    *int8      `orm:"column=status"`
+	CreateAt  *time.Time `orm:"column=create_at"`
+	UpdateAt  *time.Time `orm:"column=update_at"`
+}
+
+// 接口响应体
+type UserBaseResp struct {
+	Id        *int64  `json:"id"`
+    Name      *string `json:"name"`
+    AvatarUrl *string `json:"avatarUrl"`
+}
+
+func main() {
+	http.HandleFunc("GET /user/basic", func(writer http.ResponseWriter, request *http.Request) {
+        id := request.URL.Query().Get("id")
+		
+		// ...
+
+		// 按需指定查询字段，若不指定则会查询所有字段。
+		user, _ := db.FindOne[User](nil).
+            //Select("id", "name", "avatar_url"). //硬编码方式
+			OnDemand(orm.DemandFor[UserBaseResp]()).
+			Condition(orm.Cond().Eq("id", id).
+			Do()
+		// 执行SQL:
+		// SELECT id, name, avatar_url FROM user WHERE id = ?
+
+        resp := UserBaseResp{
+			Id:        user.Id,
+			Name:      user.Name,
+			AvatarUrl: user.AvatarUrl,
+		}
+
+		writer.Header.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(writer).Encode(resp)
+	})
+	
+	http.ListenAndServe(":8080", nil)
+}
+```
+
+*按需更新示例*
+
+假设有个Http接口用于更新用户信息，则可根据接口请求体来确定更新的字段。
+
+```go
+// user表实体
+type User struct {
+	_         struct{}   `orm:"table=user"`
+	Id        *int64     `orm:"column=id;pk"`
+	Name      *string    `orm:"column=name"`
+	AvatarUrl *string    `orm:"column=avatar_url"`
+	Email     *string    `orm:"column=email"`
+	Status    *int8      `orm:"column=status"`
+	CreateAt  *time.Time `orm:"column=create_at"`
+	UpdateAt  *time.Time `orm:"column=update_at"`
+}
+
+// 接口请求体
+type UserUpdateReq struct {
+	Id        *int64  `json:"id"`
+	Name      *string `json:"name"`
+	AvatarUrl *string `json:"avatarUrl"`
+	Email     *string `json:"email"`
+}
+
+func main() {
+	http.HandleFunc("POST /user/update", func(writer http.ResponseWriter, request *http.Request) {
+		var req UserUpdateReq
+		json.NewDecoder(request.Body).Decode(&req)
+
+		// ...
+
+		// 按需指定更新字段，若不指定则只会更新非nil字段，无法设置null值。
+		db.Update[User](nil).Must().
+			Entity(&User{
+				Id:        req.Id, //带pk的标签的字段自动作为条件，不会被更新。
+				Name:      req.Name,
+				AvatarUrl: req.AvatarUrl,
+				Email:     req.Email,
+			}).
+			//Required("name", "avatar_url", "email"). //硬编码方式
+			OnDemand(orm.DemandFor[UserUpdateReq]()).
+			Do()
+		// 执行SQL:
+		// UPDATE user SET name = ?, avatar_url = ?, email = ? WHERE id = ?
+	})
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		panic(err)
+	}
+}
+```
 
 ## 更新字段优先级
 

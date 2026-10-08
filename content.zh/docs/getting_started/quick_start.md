@@ -30,28 +30,28 @@ import (
 -- MySQL init script
 
 CREATE TABLE `user` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(20) DEFAULT NULL,
-  `age` int DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `email` varchar(20) DEFAULT NULL,
-  `status` tinyint DEFAULT NULL,
-  `level` tinyint DEFAULT NULL,
-  `create_at` datetime(3) DEFAULT NULL
+	`id` bigint PRIMARY KEY AUTO_INCREMENT,
+	`name` varchar(20),
+	`email` varchar(20),
+	`phone` varchar(20),
+	`avatar_url` varchar(1000),
+	`address` varchar(255),
+	`status` tinyint,
+	`level` tinyint,
+	`create_at` datetime(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 */
 
 type User struct {
-	Id       *int64 `orm:"pk;auto"`
-	Name     *string
-	Email    *string
-	Phone    *string
-	Age      *int32
-	Address  *string
-	Status   *int8
-	Level    *int8
-	CreateAt *time.Time
+	Id        *int64 `orm:"pk;auto"`
+	Name      *string
+	Email     *string
+	Phone     *string
+	AvatarUrl *string
+	Address   *string
+	Status    *int8
+	Level     *int8
+	CreateAt  *time.Time
 }
 
 func main() {
@@ -69,18 +69,18 @@ func main() {
 
 	// insert
 	u := &User{
-		Name:     new("Alice"),
-		Email:    new("example@email.com"),
-		Phone:    new("123456789"),
-		Age:      new(int32(20)),
-		Address:  new("anytown"),
-		Status:   new(int8(1)),
-		Level:    new(int8(0)),
-		CreateAt: new(time.Now()),
+		Name:      new("Alice"),
+		Email:     new("example@email.com"),
+		Phone:     new("123456789"),
+		AvatarUrl: new("https://example.com/avatar.jpg"),
+		Address:   new("anytown"),
+		Status:    new(int8(1)),
+		Level:     new(int8(0)),
+		CreateAt:  new(time.Now()),
 	}
 	affected, err := db.Mutation(nil).MapTo[User](u).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("INSERT INTO user(name, email, phone, age, address, status, level, create_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-			u.Name, u.Email, u.Phone, u.Age, u.Address, u.Status, u.Level, u.CreateAt)
+		b.Write("INSERT INTO user(name, email, phone, avatar_url, address, status, level, create_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+			u.Name, u.Email, u.Phone, u.AvatarUrl, u.Address, u.Status, u.Level, u.CreateAt)
 	}).Do()
 	if err != nil {
 		panic(err)
@@ -136,28 +136,28 @@ import (
 -- MySQL init script
 
 CREATE TABLE `user` (
-  `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(20) DEFAULT NULL,
-  `age` int DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `email` varchar(20) DEFAULT NULL,
-  `status` tinyint DEFAULT NULL,
-  `level` tinyint DEFAULT NULL,
-  `create_at` datetime(3) DEFAULT NULL
+	`id` bigint PRIMARY KEY AUTO_INCREMENT,
+	`name` varchar(20),
+	`email` varchar(20),
+	`phone` varchar(20),
+	`avatar_url` varchar(1000),
+	`address` varchar(255),
+	`status` tinyint,
+	`level` tinyint,
+	`create_at` datetime(3) DEFAULT CURRENT_TIMESTAMP(3)
 );
 */
 
 type User struct {
-	Id       *int64 `orm:"pk;auto"`
-	Name     *string
-	Email    *string
-	Phone    *string
-	Age      *int32
-	Address  *string
-	Status   *int8
-	Level    *int8
-	CreateAt *time.Time
+	Id        *int64 `orm:"pk;auto"`
+	Name      *string
+	Email     *string
+	Phone     *string
+	AvatarUrl *string
+	Address   *string
+	Status    *int8
+	Level     *int8
+	CreateAt  *time.Time
 }
 
 func main() {
@@ -175,14 +175,14 @@ func main() {
 
 	// insert
 	u := &User{
-		Name:     new("Alice"),
-		Email:    new("example@email.com"),
-		Phone:    new("123456789"),
-		Age:      new(int32(20)),
-		Address:  new("anytown"),
-		Status:   new(int8(1)),
-		Level:    new(int8(0)),
-		CreateAt: new(time.Now()),
+		Name:      new("Alice"),
+		Email:     new("example@email.com"),
+		Phone:     new("123456789"),
+		AvatarUrl: new("https://example.com/avatar.jpg"),
+		Address:   new("anytown"),
+		Status:    new(int8(1)),
+		Level:     new(int8(0)),
+		CreateAt:  new(time.Now()),
 	}
 	affected, err := db.Insert[User](nil).Entities(u).Do()
 	if err != nil {
@@ -217,4 +217,5 @@ func main() {
 	}
 	fmt.Println("affected:", affected)
 }
+
 ```
