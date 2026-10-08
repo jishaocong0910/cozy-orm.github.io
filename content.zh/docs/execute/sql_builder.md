@@ -5,7 +5,7 @@ weight: 4
 
 # SQL构建器
 
-SQL构建器（orm.SQLBuilder）用于在[[基础执行器]](../base)中构建SQL语句和设置参数，提供了以下方法，支持链式调用。
+类型`orm.SQLBuilder`用于动态构建SQL语句和设置参数，由基础执行器自动创建实例，提供了以下方法，支持链式调用。
 
 ## Write
 
