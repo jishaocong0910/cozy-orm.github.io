@@ -381,7 +381,7 @@ func main() {
 		// 按需指定更新字段，若不指定则只会更新非nil字段，无法设置null值。
 		db.Update[User](nil).Must().
 			Entity(&User{
-				Id:        req.Id, //带pk的标签的字段自动作为条件，不会被更新。
+				Id:        req.Id, //带pk的标签的字段会自动作为条件，不会被更新。
 				Name:      req.Name,
 				AvatarUrl: req.AvatarUrl,
 				Email:     req.Email,
