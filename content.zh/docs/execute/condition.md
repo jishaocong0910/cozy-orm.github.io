@@ -17,12 +17,12 @@ weight: 5
 | `Lt(column string, arg any)`                 | `<`                                                                                             |
 | `Ge(column string, arg any)`                 | `>=`                                                                                            |
 | `Le(column string, arg any)`                 | `<=`                                                                                            |
-| `Like(column string, str string)`            | `LIKE '%<str>%'`                                                                                |
-| `LikeLeft(column string, str string)`        | `LIKE '<str>%'`                                                                                 |
-| `LikeRight(column string, str string)`       | `LIKE '%<str>'`                                                                                 |
-| `LikePattern(column string, pattern string)` | `LIKE '<pattern>'`                                                                              |
-| `In(column string, args []any)`              | `IN( ... )`                                                                                     |
-| `Between(column string, min, max any)`       | `BETWEEN <min> AND <max>`                                                                       |
+| `Like(column string, str string)`            | `LIKE '%...%'`                                                                                  |
+| `LikeLeft(column string, str string)`        | `LIKE '...%'`                                                                                   |
+| `LikeRight(column string, str string)`       | `LIKE '%...'`                                                                                   |
+| `LikePattern(column string, pattern string)` | `LIKE '...'`                                                                                    |
+| `In(column string, args []any)`              | `IN(...)`                                                                                       |
+| `Between(column string, min, max any)`       | `BETWEEN ... AND ...`                                                                           |
 | `IsNull(column string)`                      | `IS NULL`                                                                                       |
 | `IsNotNull(column string)`                   | `IS NOT NULL`                                                                                   |
 | `Not()`                                      | 下个条件增加`NOT`修饰。                                                                         |
