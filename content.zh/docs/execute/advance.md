@@ -16,7 +16,7 @@ weight: 3
 | `Select(...string)`           | 查询的表字段，默认为所有字段。                                              |
 | `OnDemand(*orm.Demand)`       | 按需指定查询的表字段，详见[[按需字段]](#按需字段)。                         |
 | `Cond(func(*orm.Cond))`       | 查询处理函数，使用`*orm.Cond`变量拼接条件，详见[[查询条件]](../condition)。 |
-| `OrderBy(func(*orm.OrderBy))` | 排序处理函数，使用`*orm.OrderBy`变量拼接排序项目。                          |
+| `OrderBy(func(*orm.OrderBy))` | 排序处理函数，使用`*orm.OrderBy`变量拼接排序规则。                          |
 | `Page(int, int) `             | 分页，需配置[[分页模式]](../../config/db#分页模式)。                        |
 | `IncludeDeleted()`            | 包含软删除的数据（启用软删除模式时使用）。                                  |
 | `LastClause(string)`          | SQL末尾的子句，例如`FOR UPDATE`。                                           |
