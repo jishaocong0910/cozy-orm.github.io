@@ -22,13 +22,13 @@ weight: 3
             <td rowspan="3">OnInsert/OnUpdate</td><td style="width: 21em;"><code>Value(force bool, batchReuse bool, value func(ctx context.Context) any)</code></td><td>在插入/更新记录时生成字段值。<code>force</code>指定是否强制覆盖生成的值，若为<code>false</code>则仅在插入/更新的值为<code>nil</code>时使用。<code>batchReuse</code>指定是否在批量插入/更新（高级执行器<code>Insert</code>/<code>UpdateRow</code>）时只生成一次并复用，若为<code>false</code>则每行都生成一次。<code>value</code>为字段值的生成函数。</td>
         </tr>
         <tr>
-            <td><code>RawSql(force bool, batchReuse bool, rawSql func(ctx context.Context)</code></td><td>与<code>Value</code>方法的区别是，字段值为<code>rawSql</code>函数返回的原生SQL表达式。</td>
+            <td><code>Expr(force bool, batchReuse bool, expr func(ctx context.Context)</code></td><td>与<code>Value</code>方法的区别是，字段值为<code>expr</code>函数返回的原生SQL表达式。</td>
         </tr>
         <tr>
             <td><code>Never()</code></td><td>不赋值。将忽略插入/更新记录时对字段的赋值。</td>
         </tr>
         <tr>
-            <td rowspan="2">OnDeleteSoftly</td><td><code>AssignedPkMode[T](normalValue&nbsp;T)</code></td><td rowspan="2">指定软删除模式，见<a href="#%E8%BD%AF%E5%88%A0%E9%99%A4%E6%A8%A1%E5%BC%8F">[软删除模式]</a>。</td>
+            <td rowspan="2">OnDeleteSoftly</td><td><code>AssignedPkMode[T](normalValue&nbsp;T)</code></td><td rowspan="2">指定软删除模式，见<a href="#软删除模式">[软删除模式]</a>。</td>
         </tr>
         <tr>
             <td><code>AssignedNullMode[T](normalValue&nbsp;T)</code>
