@@ -49,10 +49,10 @@ CozyORM中以下划线结尾的全局变量为枚举。通过`.`获取枚举选�
 
 `orm.PageMode_`有以下选项，作用于高级执行器`Find`。
 
-| 选项        | 描述                                                                  |
-|-------------|-----------------------------------------------------------------------|
-| LimitOffset | 通过语法`LIMIT <row_count> OFFSET <offset>`分页。                     |
-| OffsetFetch | 通过语法`OFFSET ROWS <offset> FETCH NEXT <row_count> ROWS ONLY`分页。 |
+| 选项        | 描述                                                     |
+|-------------|----------------------------------------------------------|
+| LimitOffset | 通过语法`LIMIT ... OFFSET ...`分页。                     |
+| OffsetFetch | 通过语法`OFFSET ROWS ... FETCH NEXT ... ROWS ONLY`分页。 |
 
 ## 引用标识符
 
