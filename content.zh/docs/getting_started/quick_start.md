@@ -191,7 +191,9 @@ func main() {
 	fmt.Printf("affected: %d, id: %d\n", affected, *u.Id) // auto increment key
 
 	// query
-	u2, err := db.FindOne[User](nil).Condition(orm.Cond().Eq("id", u.Id)).Do()
+	u2, err := db.FindOne[User](nil).Cond(func(c *orm.Cond) {
+		c.Eq("id", u.Id)
+	}).Do()
 	if err != nil {
 		panic(err)
 	}
@@ -211,11 +213,12 @@ func main() {
 	fmt.Println("affected:", affected)
 
 	// delete
-	affected, err = db.Delete[User](nil).Condition(orm.Cond().Eq("id", u.Id)).Do()
+	affected, err = db.Delete[User](nil).Cond(func(c *orm.Cond) {
+		c.Eq("id", u.Id)
+	}).Do()
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("affected:", affected)
 }
-
 ```

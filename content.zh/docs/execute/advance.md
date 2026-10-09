@@ -11,16 +11,16 @@ weight: 3
 
 `Find`执行器通过方法`orm.DB.Find[E]`创建，用于查询多行记录。如果配置了[[软删除模式]](../../config/column_policy#软删除模式)，会自动添加正常（未删除）数据的过滤条件。
 
-| 参数                        | 描述                                                                               |
-|-----------------------------|------------------------------------------------------------------------------------|
-| `Select(...string)`         | 查询的表字段，默认为所有字段。                                                     |
-| `OnDemand(*orm.Demand)`     | 按需指定查询的表字段，详见[[按需字段]](#按需字段)。                                |
-| `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。                                         |
-| `OrderBy(*orm.orderBy)`     | 排序，使用`orm.OrderBy()`创建并链式指定排序的字段。                                |
-| `Page(*orm.page)`           | 分页，使用`orm.Page(int, int)`创建，需配置[[分页模式]](../../config/db#分页模式)。 |
-| `IncludeDeleted()`          | 包含软删除的数据（启用软删除模式时使用）。                                         |
-| `LastClause(string)`        | SQL末尾的子句，例如`FOR UPDATE`。                                                  |
-| `Do() ([]*E, error)`        | 执行并返回多个实体。                                                               |
+| 参数                          | 描述                                                                        |
+|-------------------------------|-----------------------------------------------------------------------------|
+| `Select(...string)`           | 查询的表字段，默认为所有字段。                                              |
+| `OnDemand(*orm.Demand)`       | 按需指定查询的表字段，详见[[按需字段]](#按需字段)。                         |
+| `Cond(func(*orm.Cond))`       | 查询处理函数，使用`*orm.Cond`变量拼接条件，详见[[查询条件]](../condition)。 |
+| `OrderBy(func(*orm.OrderBy))` | 排序处理函数，使用`*orm.OrderBy`变量拼接排序项目。                          |
+| `Page(int, int) `             | 分页，需配置[[分页模式]](../../config/db#分页模式)。                        |
+| `IncludeDeleted()`            | 包含软删除的数据（启用软删除模式时使用）。                                  |
+| `LastClause(string)`          | SQL末尾的子句，例如`FOR UPDATE`。                                           |
+| `Do() ([]*E, error)`          | 执行并返回多个实体。                                                        |
 
 *Example*
 
@@ -38,10 +38,15 @@ func main() {
 		DBType: orm.DBType_.MySQL, //自动配置分页模式
 	}.Build()
 
-	users, _ := db.Find[User](nil).Select("id, name").Condition(orm.Cond().Gt("id", 10)).
-		OrderBy(orm.OrderBy().Asc("id")).Page(orm.Page(0, 10)).LastClause("FOR UPDATE").Do()
+	users := db.Find[User](nil).Select("id", "name").
+		Cond(func(c *orm.Cond) {
+			c.Gt("id", 10)
+		}).
+		OrderBy(func(o *orm.OrderBy) {
+			o.Asc("status").Desc("create_at")
+		}).Page(0, 10).LastClause("FOR UPDATE").Do()
 	// 执行SQL:
-	// SELECT id, name FROM user WHERE id > 10 ORDER BY id ASC LIMIT 10 FOR UPDATE
+	// SELECT id, name FROM user WHERE id > 10 ORDER BY status ASC, create_at DESC LIMIT 10 FOR UPDATE
 }
 ```
 
@@ -112,17 +117,17 @@ func main() {
 
 `Update`执行器通过方法`orm.DB.Update[E]`创建，用于更新记录。如果配置了[[软删除模式]](../../config/column_policy#软删除模式)，会自动添加正常（未删除）数据的过滤条件。
 
-| 参数                        | 描述                                                                                                   |
-|-----------------------------|--------------------------------------------------------------------------------------------------------|
-| `Entity(*E)`                | 更新的实体，只会更新非`nil`字段，带`pk`[[标签]](../../entity/tag)的字段例外，非`nil`时会自动作为条件。 |
-| `Required(...string)`       | 必定会更新的字段，若值为`nil`，则插入`null`。                                                          |
-| `OnDemand(*orm.Demand)`     | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                    |
-| `Set(string, any)`          | 设置字段的更新值。                                                                                     |
-| `SetRaw(string, string)`    | 设置字段更新为指定的原生SQL表达式。                                                                    |
-| `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。                                                             |
-| `IncludeDeleted()`          | 包含软删除的数据（启用软删除模式时使用）。                                                             |
-| `SkipSafety()`              | 默认会防止全表操作，此参数可跳过该安全检查。                                                           |
-| `Do() (int64, error)`       | 执行并返回影响行数。                                                                                   |
+| 参数                      | 描述                                                                                                   |
+|---------------------------|--------------------------------------------------------------------------------------------------------|
+| `Entity(*E)`              | 更新的实体，只会更新非`nil`字段，带`pk`[[标签]](../../entity/tag)的字段例外，非`nil`时会自动作为条件。 |
+| `Required(...string)`     | 必定会更新的字段，若值为`nil`，则插入`null`。                                                          |
+| `OnDemand(*orm.Demand)`   | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                    |
+| `Set(string, any)`        | 设置字段的更新值。                                                                                     |
+| `SetExpr(string, string)` | 设置字段更新为指定的表达式。                                                                           |
+| `Cond(func(*orm.Cond))`   | 查询处理函数，使用`*orm.Cond`变量拼接条件，详见[[查询条件]](../condition)。                            |
+| `IncludeDeleted()`        | 包含软删除的数据（启用软删除模式时使用）。                                                             |
+| `SkipSafety()`            | 默认会防止全表操作，此参数可跳过该安全检查。                                                           |
+| `Do() (int64, error)`     | 执行并返回影响行数。                                                                                   |
 
 *Example*
 
@@ -145,8 +150,10 @@ func main() {
 
 	user := &User{Id: new(int64(1)), Name: new("Alex")}
 
-	affected, _ := db.Update[User](nil).Entity(user).Required("status").SetRaw("update_at", "now()").
-		Condition(orm.Cond().Eq("status", 1)).Do()
+	affected, _ := db.Update[User](nil).Entity(user).SetExpr("update_at", "now()").Required("status").
+		Cond(func(c *orm.Cond) {
+			c.Eq("status", 1)
+		}).Do()
 	// 执行SQL:
 	// UPDATE user SET name = 'Alex', status = NULL, update_at = now() WHERE id = 1 AND status = 1
 }
@@ -160,16 +167,16 @@ func main() {
 
 `UpdateRow`执行器通过方法`orm.DB.UpdateRow[E]`创建，用于按行更新记录，可批量更新。它要求实体`E`必须有且仅有一个带`pk`[[标签]](../../entity/tag)的字段，并且传入的实体中该字段不能为`nil`。如果配置了[[软删除模式]](../../config/column_policy#软删除模式)，会自动添加正常（未删除）数据的过滤条件。
 
-| 参数                        | 描述                                                                                                                                           |
-|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Entities(... *E)`          | 更新的实体，只会更新非`nil`字段，带`pk`[[标签]](../../entity/tag)的字段例外，会自动作为更新条件，若更新多个实体，则以首个实体的非nil字段为准。 |
-| `Required(...string)`       | 必定会更新的字段，若值为`nil`，则插入`null`。                                                                                                  |
-| `OnDemand(*orm.Demand)`     | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                                                            |
-| `Set(string, any)`          | 设置字段的更新值。                                                                                                                             |
-| `SetRaw(string, string)`    | 设置字段更新为指定的原生SQL表达式。                                                                                                            |
-| `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。                                                                                                     |
-| `IncludeDeleted()`          | 包含软删除的数据（启用软删除模式时使用）。                                                                                                     |
-| `Do() (int64, error)`       | 执行并返回影响行数。                                                                                                                           |
+| 参数                      | 描述                                                                                                                                           |
+|---------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Entities(... *E)`        | 更新的实体，只会更新非`nil`字段，带`pk`[[标签]](../../entity/tag)的字段例外，会自动作为更新条件，若更新多个实体，则以首个实体的非nil字段为准。 |
+| `Required(...string)`     | 必定会更新的字段，若值为`nil`，则插入`null`。                                                                                                  |
+| `OnDemand(*orm.Demand)`   | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                                                            |
+| `Set(string, any)`        | 设置字段的更新值。                                                                                                                             |
+| `SetExpr(string, string)` | 设置字段更新为指定的表达式。                                                                                                                   |
+| `Cond(func(*orm.Cond))`   | 查询处理函数，使用`*orm.Cond`变量拼接条件，详见[[查询条件]](../condition)。                                                                    |
+| `IncludeDeleted()`        | 包含软删除的数据（启用软删除模式时使用）。                                                                                                     |
+| `Do() (int64, error)`     | 执行并返回影响行数。                                                                                                                           |
 
 *Example*
 
@@ -206,8 +213,10 @@ func main() {
 		},
 	}
 
-	affected, _ := db.UpdateRow[User](nil).Entities(users...).Required("status").
-		SetRaw("update_at", "now()").Condition(orm.Cond().Eq("status", 1)).Do()
+    affected, _ := db.UpdateRow[User](nil).Entities(users...).SetExpr("update_at", "now()").Required("status").
+		Cond(func(c *orm.Cond) {
+			c.Eq("status", 1)
+		}).Do()
 	// 执行SQL:
 	// UPDATE
 	//    user SET
@@ -236,16 +245,18 @@ func main() {
 
 `Delete`执行器通过方法`orm.DB.Delete[E]`创建，用于删除记录。该执行器不受[[软删除模式]](../../config/column_policy#软删除模式)影响。
 
-| 参数                        | 描述                                         |
-|-----------------------------|----------------------------------------------|
-| `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。   |
-| `SkipSafety()`              | 默认会防止全表操作，此参数可跳过该安全检查。 |
-| `Do() (int64, error)`       | 执行并返回影响行数。                         |
+| 参数                    | 描述                                                                        |
+|-------------------------|-----------------------------------------------------------------------------|
+| `Cond(func(*orm.Cond))` | 查询处理函数，使用`*orm.Cond`变量拼接条件，详见[[查询条件]](../condition)。 |
+| `SkipSafety()`          | 默认会防止全表操作，此参数可跳过该安全检查。                                |
+| `Do() (int64, error)`   | 执行并返回影响行数。                                                        |
 
 *Example*
 
 ```go
-affected, _ := db.Delete[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+affected, _ := db.Delete[User](nil).Cond(func(c *orm.Cond) {
+	c.Eq("id", 1)
+}).Do()
 // 执行SQL:
 // DELETE FROM user WHERE id = 1
 ```
@@ -255,11 +266,11 @@ affected, _ := db.Delete[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
 `DeletedSoftly`执行器通过方法`orm.DB.DeletedSoftly[E]`创建，用于软删除记录。必须配置[[软删除模式]](../../config/column_policy#软删除模式)才可使用。
 
 
-| 参数                        | 描述                                         |
-|-----------------------------|----------------------------------------------|
-| `Condition(*orm.Condition)` | 查询条件，详见[[查询条件]](../condition)。   |
-| `SkipSafety()`              | 默认会防止全表操作，此参数可跳过该安全检查。 |
-| `Do() (int64, error)`       | 执行并返回影响行数。                         |
+| 参数                    | 描述                                                                        |
+|-------------------------|-----------------------------------------------------------------------------|
+| `Cond(func(*orm.Cond))` | 查询处理函数，使用`*orm.Cond`变量拼接条件，详见[[查询条件]](../condition)。 |
+| `SkipSafety()`          | 默认会防止全表操作，此参数可跳过该安全检查。                                |
+| `Do() (int64, error)`   | 执行并返回影响行数。                                                        |
 
 *Example*
 
@@ -281,7 +292,9 @@ func main() {
 		},
 	}.Build()
 
-	db.DeleteSoftly[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	db.DeleteSoftly[User](nil).Cond(func(c *orm.Cond) {
+		c.Eq("id", 1)
+	}).Do()
 	// 执行SQL:
 	// UPDATE user SET deleted = id WHERE id = 1 AND deleted = 0
 }
@@ -325,10 +338,11 @@ func main() {
 
 		// 按需指定查询字段，若不指定则会查询所有字段。
 		user, _ := db.FindOne[User](nil).
-            //Select("id", "name", "avatar_url"). //硬编码方式
+			//Select("id", "name", "avatar_url"). //硬编码方式
 			OnDemand(orm.DemandFor[UserBaseResp]()).
-			Condition(orm.Cond().Eq("id", id).
-			Do()
+			Cond(func(c *orm.Cond) {
+				c.Eq("id", id)
+			}).Do()
 		// 执行SQL:
 		// SELECT id, name, avatar_url FROM user WHERE id = ?
 

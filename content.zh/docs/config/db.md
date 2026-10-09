@@ -99,7 +99,9 @@ func main() {
 		TabNameMapper: orm.NewNameMapper().LowerSnakeCase().AddPrefix("tb_"),
 	}.Build()
 
-	db.FindOne[UserProfile](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	db.FindOne[UserProfile](nil).Cond(func(c *orm.Cond) {
+		c.Eq("id", 1)
+	}).Do()
 	// 执行SQL:
 	// SELECT id, user_id, avatar_url FROM tb_user_info WHERE id = 1
 }

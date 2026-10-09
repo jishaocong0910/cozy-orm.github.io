@@ -18,5 +18,5 @@ weight: 1
 *Example*
 
 ```go
-db.FindOne[User](ctx).Description("describe the SQL").Condition(orm.Cond().Eq("id", 1)).Do()
+db.FindOne[User](ctx).Description("describe the SQL").Cond(orm.Cond().Eq("id", 1)).Do()
 ```

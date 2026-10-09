@@ -129,11 +129,15 @@ func main() {
 		},
 	}.Build()
 
-	db.FindOne[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	db.FindOne[User](nil).Cond(func(c *orm.Cond) {
+		c.Eq("id", 1)
+	}).Do()
 	// 执行SQL:
 	// SELECT id, name, deleted FROM user WHERE id = 1 AND deleted = 0
 
-	db.DeleteSoftly[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	db.DeleteSoftly[User](nil).Cond(func(c *orm.Cond) {
+		c.Eq("id", 1)
+	}).Do()
 	// 执行SQL:
 	// UPDATE user SET deleted = id WHERE id = 1 AND deleted = 0
 }
@@ -185,11 +189,15 @@ func main() {
 		},
 	}.Build()
 
-	db.FindOne[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	db.FindOne[User](nil).Cond(func(c *orm.Cond) {
+		c.Eq("id", 1)
+	}).Do()
 	// 执行SQL:
 	// SELECT id, name, deleted FROM user WHERE id = 1 AND deleted = 0
 
-	db.DeleteSoftly[User](nil).Condition(orm.Cond().Eq("id", 1)).Do()
+	db.DeleteSoftly[User](nil).Cond(func(c *orm.Cond) {
+		c.Eq("id", 1)
+	}).Do()
 	// 执行SQL:
 	// UPDATE user SET deleted = NULL WHERE id = 1 AND deleted = 0
 }
