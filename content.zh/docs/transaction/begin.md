@@ -21,26 +21,25 @@ weight: 1
 // 创建商品和交易订单
 func createOrder(normalCtx context.Context, productOrder *ProductOrder, tradeOrder *TradeOrder) error {
 	return db.Tx(normalCtx).Do(func(ctx context.Context) error {
-		/* 必须将处理函数的ctx参数传递给执行器，才能使其事务中进行 */
+		// 处理函数的ctx参数必须传递给执行器，才能使其在事务中执行。
 		_, err := db.Insert[ProductOrder](ctx).Entities(productOrder).Do()
 		if err != nil {
 			return err
 		}
-		_, err = db.Insert[TradeOrder](ctx).Entities(tradeOrder).Do()
-		if err != nil {
-			return err
-		}
 
-		/* 以下代码为错误示范 */
+		// 这里执行器设置了Must参数，错误会被panic，orm.Tx实例会recover并返回error
+		db.Insert[TradeOrder](ctx).Must().Entities(tradeOrder).Do()
 
-		// 执行器没有传入ctx参数
+		/* 以下代码是导致执行器不在事务中执行的错误示范 */
+
+		// 没有传入ctx参数
 		//
 		// _, err := db.Insert[ProductOrder](nil).Entities(productOrder).Do()
 		// if err != nil {
 		//     return err
 		// }
 
-		// 执行器传错ctx参数
+		// 传错ctx参数
 		//
 		// _, err = db.Insert[TradeOrder](normalCtx).Entities(tradeOrder).Do()
 		// if err != nil {
