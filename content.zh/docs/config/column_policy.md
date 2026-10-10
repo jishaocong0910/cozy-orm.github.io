@@ -145,7 +145,7 @@ func main() {
 
 ### AssignedNullMode
 
-该模式删除记录时会将删除标记字段值赋值为`null`。要求唯一约束在含有`null`值字段时失效，因此仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`。而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，不能使用该模式，可通过下面的SQL测试。
+该模式删除记录时会将删除标记字段值赋值为`null`。要求唯一约束在含有`null`值字段时失效，因此仅适用于部分数据库，如`MySQL`、&#8203;`PostgreSQL`和`SQLite`。而`Oracle`、&#8203;`SQL Server`的唯一索引并非此特性，不能使用该模式。可通过下面的SQL测试。
 
 ```sql
 -- 测试AssignedNullMode

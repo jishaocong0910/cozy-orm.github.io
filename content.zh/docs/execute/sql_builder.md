@@ -5,7 +5,7 @@ weight: 4
 
 # SQL构建器
 
-类型`orm.SQLBuilder`用于动态构建SQL语句和设置参数，提供了以下方法，支持链式调用。
+`orm.SQLBuilder`用于动态构建SQL语句和设置参数，提供了以下方法并支持链式调用。
 
 ## Write
 
@@ -186,7 +186,7 @@ db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
 
 遍历切片拼接SQL语句，同时可拼接开始、分隔和结束符号。
 
-方法声明：`ForEach[T any](sep separate, items []T, handler func(i int, item T)) *orm.SQLBuilder`。其中`sep`通过以下函数指定，`handler`的参数`i`为当前元素的索引，`t`为当前元素。
+方法声明：`ForEach[T any](sep separate, items []T, handler func(i int, item T)) *orm.SQLBuilder`。其中`sep`通过以下函数指定，其中`handler`的参数`i`为当前元素的索引，`t`为当前元素。
 
 | 函数                                           | 描述                                                      |
 |------------------------------------------------|-----------------------------------------------------------|

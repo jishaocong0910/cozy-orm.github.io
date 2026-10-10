@@ -5,7 +5,7 @@ weight: 2
 
 # 基础执行器
 
-基础执行器是CozyORM的核心功能，通过自定义SQL执行，并且兼容部分数据库获取生成Key的机制。
+基础执行器是CozyORM的核心功能，它通过自定义SQL执行，并且兼容部分数据库获取生成Key的机制。
 
 ## Query
 
@@ -83,7 +83,7 @@ func main() {
 }
 ```
 
-部分数据库的生成Key是通过结果集返回，而不是`sql.Result.LastInsertId`方法，例如PostgreSQL、SQL Server，`Query`执行器兼容这种机制，通过`MapTo`方法将生成的Key映射到实体中。
+部分数据库的生成Key是通过结果集返回，而不是`sql.Result.LastInsertId`方法，例如PostgreSQL、SQL Server，`Query`执行器兼容这种机制。通过`MapTo`方法可将生成的Key映射到实体中。
 
 *Go原生方式示例*
 

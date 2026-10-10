@@ -5,7 +5,7 @@ weight: 3
 
 # 预定义实体
 
-预定义实体是CozyORM提供的可临时映射查询结果的类型，具有动态字段类型的特性，方便查询少量字段，或非表字段（例如聚合函数）等业务，只能用于基础执行器`Query`。
+预定义实体是用于临时映射查询结果的类型，具有动态字段类型的特性，方便查询少量字段，或非表字段（例如聚合函数）等业务，只能用于基础执行器`Query`。
 
 * `orm.Tuple[T]`
 * `orm.Tuple2[T1, T2]`
@@ -26,17 +26,17 @@ func main() {
 		b.Write("SELECT id, email FROM user WHERE id IN(1, 2, 3)")
 	}).Do()
 
-	for _, name := range emails {
-		fmt.Println(name.Field1, name.Field2)
+	for _, t := range emails {
+		fmt.Println(t.Field1, t.Field2)
 	}
 
-	orders, _ := db.Query[orm.Tuple3[int64, int64, int64]](nil).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("SELECT user_id, COUNT(*), SUM(order_amount) FROM orders " +
+	productOrders, _ := db.Query[orm.Tuple3[int64, int64, int64]](nil).BuildSql(func(b *orm.SQLBuilder) {
+		b.Write("SELECT user_id, COUNT(*), SUM(order_amount) FROM product_order " +
 			"WHERE status = 'paid' AND user_id IN(1, 2, 3) GROUP BY user_id")
 	}).Do()
 
-	for _, order := range orders {
-		fmt.Println(order.Field1, order.Field2, order.Field3)
+	for _, t := range productOrders {
+		fmt.Println(t.Field1, t.Field2, t.Field3)
 	}
 }
 ```
