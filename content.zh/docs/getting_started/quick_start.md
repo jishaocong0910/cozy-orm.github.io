@@ -56,14 +56,14 @@ type User struct {
 
 func main() {
 	// open a sql.DB
-	sqlDB, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+	rawDB, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 	if err != nil {
 		panic(err)
 	}
 
 	// create a orm.DB
 	db := orm.DBConfig{
-		SqlDB:  sqlDB,
+		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 	}.Build()
 
@@ -162,14 +162,14 @@ type User struct {
 
 func main() {
 	// open a sql.DB
-	sqlDB, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+	rawDB, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 	if err != nil {
 		panic(err)
 	}
 
 	// create a orm.DB
 	db := orm.DBConfig{
-		SqlDB:  sqlDB,
+		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 	}.Build()
 

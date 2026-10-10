@@ -31,10 +31,10 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
 	db := orm.DBConfig{
-		SqlDB:  sqlDB,
+		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL, //自动配置分页模式
 	}.Build()
 
@@ -80,10 +80,10 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
 	db := orm.DBConfig{
-		SqlDB:       sqlDB,
+		RawDB:       rawDB,
 		DBType:      orm.DBType_.Postgres, //自动配置获取生成Key模式
 	}.Build()
 
@@ -141,10 +141,10 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
 	db := orm.DBConfig{
-		SqlDB:  sqlDB,
+		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 	}.Build()
 
@@ -191,10 +191,10 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
 	db := orm.DBConfig{
-		SqlDB:  sqlDB,
+		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 	}.Build()
 
@@ -282,10 +282,10 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
 	db := orm.DBConfig{
-		SqlDB:       sqlDB,
+		RawDB:       rawDB,
 		DBType:      orm.DBType_.MySQL,
 		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
 			orm.NewColumnPolicyConfig("deleted").OnDeleteSoftly().AssignedPkMode(0),

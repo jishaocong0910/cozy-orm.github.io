@@ -57,10 +57,10 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
 	db := orm.DBConfig{
-		SqlDB:               sqlDB,
+		RawDB:               rawDB,
 		GetGeneratedKeyMode: orm.GetGeneratedKeyMode_.FirstInsertId,
 	}.Build()
 
@@ -95,7 +95,7 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
 	users := []*User{
 		{Name: new("Alex"), Email: new("alex@example.com")},
@@ -103,7 +103,7 @@ func main() {
 		{Name: new("Charlie"), Email: new("charlie@example.com")},
 	}
 
-	rows, err := sqlDB.Query("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id",
+	rows, err := rawDB.Query("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id",
 		users[0].Name, users[0].Email, users[1].Name, users[1].Email, users[2].Name, users[2].Email)
 	if err != nil {
 		panic(err)
@@ -132,10 +132,10 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
 	db := orm.DBConfig{
-		SqlDB: sqlDB,
+		RawDB: rawDB,
 	}.Build()
 
 	users := []*User{

@@ -41,7 +41,7 @@ weight: 3
 
 ```go
 db := orm.DBConfig{
-	SqlDB:  sqlDB,
+	RawDB:  rawDB,
 	DBType: orm.DBType_.MySQL,
 	ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
 		// 所有表的id字段使用自定义的ID生成器创建，并且禁止更新。
@@ -82,7 +82,7 @@ db := orm.DBConfig{
 
 ```go
 db := orm.DBConfig{
-	SqlDB:  sqlDB,
+	RawDB:  rawDB,
 	DBType: orm.DBType_.MySQL,
 	ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
 		orm.NewColumnPolicyConfig("create_at").UseCreateTime(),
@@ -122,7 +122,7 @@ func main() {
 	// ...
 
 	db := orm.DBConfig{
-		SqlDB:  sqlDB,
+		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
 			orm.NewColumnPolicyConfig("deleted").OnDeleteSoftly().AssignedPkMode(0),
@@ -182,7 +182,7 @@ func main() {
 	// ...
 
 	db := orm.DBConfig{
-		SqlDB:  sqlDB,
+		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
 			orm.NewColumnPolicyConfig("deleted").OnDeleteSoftly().AssignedNullMode(0),

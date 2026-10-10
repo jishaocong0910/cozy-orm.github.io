@@ -22,10 +22,10 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
 	db := orm.DBConfig{
-		SqlDB:       sqlDB,
+		RawDB:       rawDB,
 		DBType:      orm.DBType_.Postgres,
 	}.Build()
 
@@ -78,10 +78,10 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
 	db := orm.DBConfig{
-		SqlDB:  sqlDB,
+		RawDB:  rawDB,
 		DBType: orm.DBType_.Postgres, // 自动配置参数占位符前缀
 	}.Build()
 
@@ -118,7 +118,7 @@ func main() {
 
 ## WriteColumn
 
-拼接带引用标识符的字段名，受[[DB配置]](../../config/db)的配置项`QuotedIdentifier`影响。
+拼接带标识符界定符的字段名，受[[DB配置]](../../config/db)的配置项`IdentifierDelimiter`影响。
 
 *Example*
 
@@ -131,11 +131,11 @@ type User struct {
 }
 
 func main() {
-	sqlDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
 	db := orm.DBConfig{
-		SqlDB:       sqlDB,
-		DBType:      orm.DBType_.Postgres, // 自动配置引用标识符
+		RawDB:       rawDB,
+		DBType:      orm.DBType_.Postgres, // 自动配置标识符界定符
 	}.Build()
 
 	user := &User{
