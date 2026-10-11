@@ -6,11 +6,11 @@ weight: 3
 # 字段策略
 
 字段策略作用于高级执行器，用于配置字段的统一处理逻辑。通过
-{{< html >}}<code>orm.NewColumnPolicyConfig(column&nbsp;string)</code>{{< /html >}}创建字段策略配置，方法`ForTable`用于指定作用的表，若不指定则为所有表的默认配置，方法`IgnoreTable`可排除指定表。每个表的字段只会使用一个配置，匹配多个时，优先使用非默认配置，多个非默认配置时取最后的配置。
+{{<html>}}<code>orm.NewColumnPolicyConfig(column&nbsp;string)</code>{{</html>}}创建字段策略配置，方法`ForTable`用于指定作用的表，若不指定则为所有表的默认配置，方法`IgnoreTable`可排除指定表。每个表的字段只会使用一个配置，匹配多个时，优先使用非默认配置，多个非默认配置时取最后的配置。
 
 字段策略可配置插入、更新和删除事件，对应方法`OnInsert`、`OnUpdate`、`OnDeleteSoftly`，事件提供的处理方法如下。
 
-{{< html >}}
+{{<html>}}
 <table>
     <thead>
         <tr>
@@ -35,7 +35,7 @@ weight: 3
         </tr>
     </tbody>
 </table>
-{{< /html >}}
+{{</html>}}
 
 *Example*
 

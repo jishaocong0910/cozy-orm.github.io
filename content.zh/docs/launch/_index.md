@@ -1,5 +1,5 @@
 ---
-title: 配置
+title: 启动
 weight: 2
 bookFlatSection: true
 ---

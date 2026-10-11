@@ -9,26 +9,26 @@ weight: 5
 
 ## 方法概述
 
-| 方法                                         | 条件操作符/表达式/描述                                                                          |
-|----------------------------------------------|-------------------------------------------------------------------------------------------------|
-| `Eq(column string, arg any)`                 | `=`                                                                                             |
-| `Ne(column string, arg any)`                 | `<>`                                                                                            |
-| `Gt(column string, arg any)`                 | `>`                                                                                             |
-| `Lt(column string, arg any)`                 | `<`                                                                                             |
-| `Ge(column string, arg any)`                 | `>=`                                                                                            |
-| `Le(column string, arg any)`                 | `<=`                                                                                            |
-| `Like(column string, str string)`            | `LIKE '%...%'`                                                                                  |
-| `LikeLeft(column string, str string)`        | `LIKE '...%'`                                                                                   |
-| `LikeRight(column string, str string)`       | `LIKE '%...'`                                                                                   |
-| `LikePattern(column string, pattern string)` | `LIKE '...'`                                                                                    |
-| `In(column string, args []any)`              | `IN(...)`                                                                                       |
-| `Between(column string, min, max any)`       | `BETWEEN ... AND ...`                                                                           |
-| `IsNull(column string)`                      | `IS NULL`                                                                                       |
-| `IsNotNull(column string)`                   | `IS NOT NULL`                                                                                   |
-| `Not()`                                      | 下个条件增加`NOT`修饰。                                                                         |
-| `Or()`                                       | 下个条件使用`OR`连接。                                                                          |
-| `Sub(func(*orm.Cond))`                       | 子条件处理函数，使用`*orm.Cond`变量拼接子条件，详见[[子条件]](#子条件)。                        |
-| `Expr(func(*orm.CondExpr))`                  | 条件表达式处理函数，使用`*orm.CondExpr`变量拼接SQL和设置参数，详见[[条件表达式]](#条件表达式)。 |
+| 方法                                         | 条件操作符/表达式/描述                                                              |
+|----------------------------------------------|-------------------------------------------------------------------------------------|
+| `Eq(column string, arg any)`                 | `=`                                                                                 |
+| `Ne(column string, arg any)`                 | `<>`                                                                                |
+| `Gt(column string, arg any)`                 | `>`                                                                                 |
+| `Lt(column string, arg any)`                 | `<`                                                                                 |
+| `Ge(column string, arg any)`                 | `>=`                                                                                |
+| `Le(column string, arg any)`                 | `<=`                                                                                |
+| `Like(column string, str string)`            | `LIKE '%...%'`                                                                      |
+| `LikeLeft(column string, str string)`        | `LIKE '...%'`                                                                       |
+| `LikeRight(column string, str string)`       | `LIKE '%...'`                                                                       |
+| `LikePattern(column string, pattern string)` | `LIKE '...'`                                                                        |
+| `In(column string, args []any)`              | `IN(...)`                                                                           |
+| `Between(column string, min, max any)`       | `BETWEEN ... AND ...`                                                               |
+| `IsNull(column string)`                      | `IS NULL`                                                                           |
+| `IsNotNull(column string)`                   | `IS NOT NULL`                                                                       |
+| `Not()`                                      | 下个条件增加`NOT`修饰。                                                             |
+| `Or()`                                       | 下个条件使用`OR`连接。                                                              |
+| `Sub(func(c *orm.Cond))`                     | 子条件处理函数，使用参数`c`拼接子条件，详见[[子条件]](#子条件)。                    |
+| `Expr(func(c *orm.CondExpr))`                | 条件表达式处理函数，使用参数`c`拼接SQL和设置参数，详见[[条件表达式]](#条件表达式)。 |
 
 *Example*
 
@@ -60,7 +60,9 @@ func findProductOrders(ctx context.Context, userId int64, merchantId int64, orde
 
 ## 子条件
 
-`Sub`方法会自动为子条件添加括号对，见下面例子：
+`Sub`方法用于创建子条件，子条件会自动添加括号对
+
+*Example*
 
 ```go
 // 获取用户单个订单
@@ -74,15 +76,17 @@ func getProductOrder(ctx context.Context, userId int64, merchantId int64, orderN
 	// 执行SQL:
 	// SELECT id, order_no, user_id, merchant_id, amount, status, create_at
 	// FROM product_order
-	// WHERE user_id = ?
-	//   AND merchant_id = ?
-	//   AND (order_no = ? OR trade_no = ?)
+	// WHERE user_id = $1
+	//   AND merchant_id = $2
+	//   AND (order_no = ? OR trade_no = $3)
 }
 ```
 
 ## 条件表达式
 
-`Expr`方法用于拼接原生SQL表达式，可以设置参数，整个表达式会视为一个子条件，自动添加括号对，见下面例子：
+`Expr`方法用于拼接原生SQL表达式，并且可以设置参数。整个表达式会视为一个子条件，自动添加括号对。
+
+*Example*
 
 ```go
 // 查找根据日期用户的订单
@@ -90,7 +94,7 @@ func findProductOrdersByDate(ctx context.Context, userId int64, merchantId int64
 	return db.Find[ProductOrder](ctx).Select("id", "order_no", "user_id", "merchant_id", "amount", "status", "create_at").
 		Cond(func(c *orm.Cond) {
 			c.Eq("user_id", userId).Eq("merchant_id", merchantId).Expr(func(c *orm.CondExpr) {
-				c.Str("create_at = DATE(").Arg(date).Str(")")
+				c.Text("create_at = DATE(").Arg(date).Text(")")
 			})
 		}).OrderBy(func(o *orm.OrderBy) {
 		o.Asc("id")
@@ -98,9 +102,9 @@ func findProductOrdersByDate(ctx context.Context, userId int64, merchantId int64
 	// 执行SQL:
 	// SELECT id, order_no, user_id, merchant_id, amount, status, create_at
 	// FROM product_order
-	// WHERE user_id = ?
-    //   AND merchant_id = ?
-	//   AND (create_at = DATE(?))
+	// WHERE user_id = $1
+    //   AND merchant_id = $2
+	//   AND (create_at = DATE($3))
 }
 ```
 

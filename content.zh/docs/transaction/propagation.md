@@ -1,11 +1,11 @@
 ---
-title: 事务传播
+title: 传播机制
 weight: 2
 ---
 
 # 事务传播
 
-事务传播机制是执行器的内部逻辑：通过检查`ctx`参数中的值，若存在与自己相同DB实例的事务则加入，否则开启新事务。
+执行器通、事务实例和事务钩子，都会检查`ctx`参数中的值，若存在事务数据库连接，且所属DB实例相同，则表明`ctx`中存在事务，然后加入该事务。若`ctx`中不存在事务，则执行器和事务钩子以非事务执行，事务实例则会创建新的事务数据库连接，然后添加到`ctx`中。
 
 以下示例中，调用`createOrder`时，两个函数会在同一个事务中执行。
 
@@ -13,16 +13,8 @@ weight: 2
 // 创建商品和交易订单
 func createOrder(ctx context.Context, productOrder *ProductOrder, tradeOrder *TradeOrder) error {
 	return db.Tx(ctx).Do(func(ctx context.Context) error {
-		_, err := db.Insert[ProductOrder](ctx).Must().Entities(productOrder).Do()
-		if err != nil {
-			return err
-		}
-
-		_, err = db.Insert[TradeOrder](ctx).Must().Entities(tradeOrder).Do()
-		if err != nil {
-			return err
-		}
-
+		db.Insert[ProductOrder](ctx).Must().Entities(productOrder).Do()
+		db.Insert[TradeOrder](ctx).Must().Entities(tradeOrder).Do()
 		err = deductInventory(ctx, productOrder)
 		if err != nil {
 			return err
@@ -34,26 +26,19 @@ func createOrder(ctx context.Context, productOrder *ProductOrder, tradeOrder *Tr
 // 扣减库存
 func deductInventory(ctx context.Context, productOrder *ProductOrder) error {
 	return db.Tx(ctx).Do(func(ctx context.Context) error {
-		// 查询库存
-		inventory, err := db.FindOne[Inventory](ctx).Cond(func(c *orm.Cond) {
+		inventory, _ := db.FindOne[Inventory](ctx).Must().Cond(func(c *orm.Cond) {
 			c.Eq("sku_id", productOrder.SkuId)
 		}).LastClause("FOR UPDATE").Do()
-		if err != nil {
-			return err
-		}
 
-		// 确认库存足够
 		remainingStock := *inventory.Stock - *productOrder.Quantity
 		if remainingStock < 0 {
 			return errors.New("not enough stock")
 		}
 
-		// 更新库存
 		db.Update[Inventory](ctx).Must().Set("stock", remainingStock).Cond(func(c *orm.Cond) {
 			c.Eq("id", inventory.Id)
 		}).Do()
 
-		// 创建库存日志
 		db.Insert[InventoryLog](ctx).Must().Entities(&InventoryLog{
 			InventoryId:    inventory.Id,
 			ProductOrderId: productOrder.Id,

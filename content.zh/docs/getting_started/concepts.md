@@ -7,23 +7,7 @@ weight: 2
 
 ## DB实例
 
-`orm.DB`是一个连接了数据库的实例，所有数据库操作都通过该实例进行，它通过`orm.DBConfig`指定配置后调用`Build`方法创建。
-
-*Example*
-
-```go
-// open a DB
-rawDB, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
-if err != nil {
-	panic(err)
-}
-
-// create a orm.DB instance
-db := orm.DBConfig{
-	RawDB:  rawDB,
-	DBType: orm.DBType_.MySQL,
-}.Build()
-```
+`orm.DB`是一个连接了数据库的实例，称为DB实例，所有数据库操作都通过该实例进行。
 
 ## 实体
 
@@ -58,3 +42,6 @@ CozyORM通过DB实例提供的方法创建执行器与数据库交互，执行�
 * `Delete` 删除记录。
 * `DeleteSoftly` 软删除记录。
 
+## 事务实例
+
+`orm.Tx`是一个事务实例，用于管理事务的生命周期。

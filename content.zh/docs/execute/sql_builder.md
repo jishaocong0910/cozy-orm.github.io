@@ -22,12 +22,7 @@ type User struct {
 }
 
 func main() {
-	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
-
-	db := orm.DBConfig{
-		RawDB:       rawDB,
-		DBType:      orm.DBType_.Postgres,
-	}.Build()
+	// ...
 
 	user := &User{
 		Id:    new(int64(1)),
@@ -78,7 +73,7 @@ type User struct {
 }
 
 func main() {
-	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	// ...
 
 	db := orm.DBConfig{
 		RawDB:  rawDB,
@@ -131,7 +126,7 @@ type User struct {
 }
 
 func main() {
-	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	// ...
 
 	db := orm.DBConfig{
 		RawDB:       rawDB,
@@ -184,15 +179,15 @@ db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
 
 ## ForEach
 
-遍历切片拼接SQL语句，同时可拼接开始、分隔和结束符号。
+用于遍历切片拼接SQL语句，添加开始、分隔和结束符号。
 
-方法声明：`ForEach[T any](sep separate, items []T, handler func(i int, item T)) *orm.SQLBuilder`。其中`sep`通过以下函数指定，其中`handler`的参数`i`为当前元素的索引，`t`为当前元素。
+方法参数：`(sep separate, items []T, handler func(i int, item T))`。其中`handler`的参数`i`为当前元素的索引，`t`为当前元素。`sep`通过以下函数指定。
 
-| 函数                                           | 描述                                                      |
-|------------------------------------------------|-----------------------------------------------------------|
-| `orm.Sep(separator string)`                    | 拼接分隔符。                                              |
-| `orm.SepWrap(open, separator close string)`    | 拼接开始、分隔和结束符。                                  |
-| `orm.SepWrapOpt(open, separator close string)` | 拼接开始、分隔和结束符，切片为空时不拼接`open`和`close`。 |
+| 函数                                           | 描述                                                   |
+|------------------------------------------------|--------------------------------------------------------|
+| `orm.Sep(separator string)`                    | 拼接分隔符。                                           |
+| `orm.SepWrap(open, separator close string)`    | 拼接开始、分隔和结束符。                               |
+| `orm.SepWrapOpt(open, separator close string)` | 拼接开始、分隔和结束符，切片为空时不拼接开始和结束符。 |
 
 *Example*
 
@@ -205,7 +200,8 @@ func main() {
 	var status []int8
 
 	db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("SELECT ").ForEach(b.Sep(", "), columns, func(_ int, item string) {
+		b.Write("SELECT ")
+		b.ForEach(b.Sep(", "), columns, func(_ int, item string) {
 			b.Write(item)
 		})
 		b.Write(" FROM user WHERE id IN")
@@ -228,7 +224,7 @@ func main() {
 
 接受自定义的SQL拼接。
 
-方法声明：`Accept(SQLWriter) *orm.SQLBuilder`。其中`SQLWriter`是一个接口，要求实现`WriteSQL(*SQLBuilder)`用于拼接SQL语句。
+方法参数：`(w SQLWriter)`。`SQLWriter`是一个接口，要求实现`WriteSQL(*SQLBuilder)`用于拼接SQL语句。
 
 *Example*
 

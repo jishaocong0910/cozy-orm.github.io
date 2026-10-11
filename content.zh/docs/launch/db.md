@@ -1,9 +1,29 @@
 ---
-title: DB配置
+title: DB实例
 weight: 1
 ---
 
-# DB配置
+# DB实例
+
+## 创建DB实例
+
+DB实例通过`orm.DBConfig`指定配置后调用`Build`方法创建。
+
+*Example*
+
+```go
+// open a DB
+rawDB, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+if err != nil {
+	panic(err)
+}
+
+// create a orm.DB instance
+db := orm.DBConfig{
+	RawDB:  rawDB,
+	DBType: orm.DBType_.MySQL,
+}.Build()
+```
 
 ## 配置项
 
