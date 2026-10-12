@@ -1,6 +1,6 @@
 ---
 title: 查询条件
-weight: 5
+weight: 6
 ---
 
 # 查询条件
@@ -34,8 +34,8 @@ weight: 5
 
 ```go
 // 查找用户的商品订单
-func findProductOrders(ctx context.Context, userId int64, merchantId int64, orderNo *string, status *int8, startAt *time.Time, endAt *time.Time, page int, pageSize int) ([]*ProductOrder, error) {
-	return db.Find[ProductOrder](ctx).Cond(func(c *orm.Cond) {
+func FindOrders(ctx context.Context, userId int64, merchantId int64, orderNo *string, status *int8, startAt *time.Time, endAt *time.Time, page int, pageSize int) ([]*Order, error) {
+	return db.Find[Order](ctx).Cond(func(c *orm.Cond) {
 		c.Eq("user_id", userId).Eq("merchant_id", merchantId)
 		if orderNo != nil {
 			c.Eq("order_no", orderNo)
@@ -66,8 +66,8 @@ func findProductOrders(ctx context.Context, userId int64, merchantId int64, orde
 
 ```go
 // 获取用户单个订单
-func getProductOrder(ctx context.Context, userId int64, merchantId int64, orderNo string) ([]*ProductOrder, error) {
-	return db.Find[ProductOrder](ctx).Select("id", "order_no", "user_id", "merchant_id", "amount", "status", "create_at").
+func GetOrder(ctx context.Context, userId int64, merchantId int64, orderNo string) ([]*Order, error) {
+	return db.Find[Order](ctx).Select("id", "order_no", "user_id", "merchant_id", "amount", "status", "create_at").
 		Cond(func(c *orm.Cond) {
 			c.Eq("user_id", userId).Eq("merchant_id", merchantId).Sub(func(c *orm.Cond) {
 				c.Eq("order_no", orderNo).Or().Eq("trade_no", orderNo)
@@ -75,7 +75,7 @@ func getProductOrder(ctx context.Context, userId int64, merchantId int64, orderN
 		}).Do()
 	// 执行SQL:
 	// SELECT id, order_no, user_id, merchant_id, amount, status, create_at
-	// FROM product_order
+	// FROM order
 	// WHERE user_id = $1
 	//   AND merchant_id = $2
 	//   AND (order_no = ? OR trade_no = $3)
@@ -90,8 +90,8 @@ func getProductOrder(ctx context.Context, userId int64, merchantId int64, orderN
 
 ```go
 // 查找根据日期用户的订单
-func findProductOrdersByDate(ctx context.Context, userId int64, merchantId int64, date time.Time) ([]*ProductOrder, error) {
-	return db.Find[ProductOrder](ctx).Select("id", "order_no", "user_id", "merchant_id", "amount", "status", "create_at").
+func FindOrdersByDate(ctx context.Context, userId int64, merchantId int64, date time.Time) ([]*Order, error) {
+	return db.Find[Order](ctx).Select("id", "order_no", "user_id", "merchant_id", "amount", "status", "create_at").
 		Cond(func(c *orm.Cond) {
 			c.Eq("user_id", userId).Eq("merchant_id", merchantId).Expr(func(c *orm.CondExpr) {
 				c.Text("create_at = DATE(").Arg(date).Text(")")
@@ -101,7 +101,7 @@ func findProductOrdersByDate(ctx context.Context, userId int64, merchantId int64
 	}).Do()
 	// 执行SQL:
 	// SELECT id, order_no, user_id, merchant_id, amount, status, create_at
-	// FROM product_order
+	// FROM order
 	// WHERE user_id = $1
     //   AND merchant_id = $2
 	//   AND (create_at = DATE($3))

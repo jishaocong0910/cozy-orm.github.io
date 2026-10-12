@@ -11,11 +11,11 @@ weight: 2
 
 ```go
 // 创建商品和交易订单
-func createOrder(ctx context.Context, productOrder *ProductOrder, tradeOrder *TradeOrder) error {
+func CreateOrder(ctx context.Context, order *Order, tradeOrder *TradeOrder) error {
 	return db.Tx(ctx).Do(func(ctx context.Context) error {
-		db.Insert[ProductOrder](ctx).Must().Entities(productOrder).Do()
+		db.Insert[Order](ctx).Must().Entities(order).Do()
 		db.Insert[TradeOrder](ctx).Must().Entities(tradeOrder).Do()
-		err = deductInventory(ctx, productOrder)
+		err = deductInventory(ctx, order)
 		if err != nil {
 			return err
 		}
@@ -24,13 +24,13 @@ func createOrder(ctx context.Context, productOrder *ProductOrder, tradeOrder *Tr
 }
 
 // 扣减库存
-func deductInventory(ctx context.Context, productOrder *ProductOrder) error {
+func DeductInventory(ctx context.Context, order *Order) error {
 	return db.Tx(ctx).Do(func(ctx context.Context) error {
 		inventory, _ := db.FindOne[Inventory](ctx).Must().Cond(func(c *orm.Cond) {
-			c.Eq("sku_id", productOrder.SkuId)
+			c.Eq("sku_id", order.SkuId)
 		}).LastClause("FOR UPDATE").Do()
 
-		remainingStock := *inventory.Stock - *productOrder.Quantity
+		remainingStock := *inventory.Stock - *order.Quantity
 		if remainingStock < 0 {
 			return errors.New("not enough stock")
 		}
@@ -41,8 +41,8 @@ func deductInventory(ctx context.Context, productOrder *ProductOrder) error {
 
 		db.Insert[InventoryLog](ctx).Must().Entities(&InventoryLog{
 			InventoryId:    inventory.Id,
-			ProductOrderId: productOrder.Id,
-			Stock:          productOrder.Quantity,
+			OrderId: order.Id,
+			Stock:          order.Quantity,
 			StockBefore:    inventory.Stock,
 			StockAfter:     new(remainingStock),
 			Operation:      new("deduct"),

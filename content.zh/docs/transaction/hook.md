@@ -15,43 +15,46 @@ weight: 3
 
 *Example*
 
-```
+```go
+// 保存操作日志
+func SaveOperationLog(ctx context.Context, log *OperationLog) error {
+	// 若ctx存在事务，则在事务提交之前插入操作日志，hookCtx等于ctx。
+	hook := db.TxHook(ctx).BeforeCommitSync(func(hookCtx context.Context) error {
+		_, err := db.Insert[OperationLog](hookCtx).Must().Entities(log).Do()
+		return err
+	})
+
+	// 若ctx不存在事务，则直接保存操作日志。
+	if hook == nil {
+		_, err := db.Insert[OperationLog](ctx).Entities(log).Do()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
 ```
 
 ## AfterCompleteAsync
 
 在事务完成后异步执行。
 
-方法参数：`(handler func(ctx context.Context, commit bool), inheritCtxKeys ...any)`。`handler`函数若发生`panic`，会被恢复并打印错误日志。`ctx`值为`context.Background()`，并且会继承事务实例的`ctx`参数中，key为`inheritCtxKeys`参数的值。若事务提交`commit`参数为true，回滚则为false。
+方法参数：`(handler func(ctx context.Context, commit bool), copyCtxKeys ...any)`。`handler`函数的`ctx`参数值为`context.Background()`，若发生`panic`，会被恢复并打印错误日志。`copyCtxKeys`参数用于指定，从事务钩子管理器的`ctx`参数，复制到`handler`函数的`ctx`的参数的key。若事务提交`commit`参数为true，回滚则为false。
 
 ```go
-func updateUser(normalCtx context.Context, u *User, at *AvatarShrinkTask) error {
-	db.Tx(normalCtx).Do(func(ctx context.Context) error {
-		db.Update[User](ctx).Must().Entity(u).Do()
-		db.Insert[AvatarShrinkTask](ctx).Must().Entities(at).Do()
+// 压缩用户头像
+func ShrinkAvatar(ctx context.Context, userId *int64) error {
+	// 若ctx存在事务，则在事务提交成功后，异步对用户头像进行压缩。
+	hook := db.TxHook(ctx).AfterCompleteAsync(func(hookCtx context.Context, commit bool) {
+		if commit {
+			ShrinkAvatarHandler(ctx, userId)
+		}
+	}, "trace_id") // 复制ctx中key为“trace_id”的值到hookCtx。
 
-		db.TxHook(ctx).AfterCompleteAsync(func(hookCtx context.Context, commit bool) {
-			// 已提交，则处理任务
-			if commit {
-				// 查询任务信息
-				task, _ := db.FindOne[AvatarShrinkTask](hookCtx).Must().Cond(func(c *orm.Cond) {
-					c.Eq("id", at.Id)
-				}).Do()
-
-				// ...
-
-				// 压缩用户头像 ...
-
-				// ...
-			}
-
-			// 删除任务
-			db.Delete[AvatarShrinkTask](hookCtx).Must().Cond(func(c *orm.Cond) {
-				c.Eq("id", at.Id)
-			}).Do()
-		}, "trace_id") // hookCtx将继承ctx中key为“trace_id”的值
-		return nil
-	})
+	// 若ctx不存在事务，则直接压缩用户头像。
+	if hook == nil {
+		go ShrinkAvatarHandler(ctx, userId)
+	}
 	return nil
 }
 ```

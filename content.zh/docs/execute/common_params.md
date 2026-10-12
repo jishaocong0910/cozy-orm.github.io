@@ -1,6 +1,6 @@
 ---
 title: 公共参数
-weight: 1
+weight: 2
 ---
 
 # 公共参数

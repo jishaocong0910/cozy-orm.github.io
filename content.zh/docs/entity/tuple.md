@@ -1,6 +1,6 @@
 ---
 title: 预定义实体
-weight: 3
+weight: 4
 ---
 
 # 预定义实体
@@ -30,12 +30,12 @@ func main() {
 		fmt.Println(t.Field1, t.Field2)
 	}
 
-	productOrders, _ := db.Query[orm.Tuple3[int64, int64, int64]](nil).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("SELECT user_id, COUNT(*), SUM(order_amount) FROM product_order " +
+	orders, _ := db.Query[orm.Tuple3[int64, int64, int64]](nil).BuildSql(func(b *orm.SQLBuilder) {
+		b.Write("SELECT user_id, COUNT(*), SUM(order_amount) FROM order " +
 			"WHERE status = 'paid' AND user_id IN(1, 2, 3) GROUP BY user_id")
 	}).Do()
 
-	for _, t := range productOrders {
+	for _, t := range orders {
 		fmt.Println(t.Field1, t.Field2, t.Field3)
 	}
 }

@@ -1,6 +1,6 @@
 ---
 title: 字段类型
-weight: 1
+weight: 2
 ---
 
 # 字段类型
