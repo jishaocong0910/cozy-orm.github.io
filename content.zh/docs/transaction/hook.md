@@ -39,7 +39,7 @@ func SaveOperationLog(ctx context.Context, log *OperationLog) error {
 
 在事务完成后异步执行。
 
-方法参数：`(handler func(ctx context.Context, commit bool), copyCtxKeys ...any)`。`handler`函数的`ctx`参数值为`context.Background()`，若发生`panic`，会被恢复并打印错误日志。`copyCtxKeys`参数用于指定，从事务钩子管理器的`ctx`参数，复制到`handler`函数的`ctx`的参数的key。若事务提交`commit`参数为true，回滚则为false。
+方法参数：`(handler func(ctx context.Context, commit bool), copyCtxKeys ...any)`。`handler`函数的`ctx`参数以`context.Background()`为基础创建，`commit`参数在事务提交成功为true，回滚时为false。若`handler`发生`panic`，会被恢复并打印错误日志。`copyCtxKeys`参数指定需要从事务钩子管理器的`ctx`复制到`handler`的`ctx`的值对应的key。
 
 ```go
 // 压缩用户头像
