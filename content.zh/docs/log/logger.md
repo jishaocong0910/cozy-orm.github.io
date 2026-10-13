@@ -27,7 +27,7 @@ func main() {
 		b.Text(" WHERE ").Column("id").Text(" = ").Arg(1)
 	}).Do()
 	// 打印日志:
-	// level: info, operator: admin1013, msg: SQL: Update product SET `status` = ? WHERE `id` = ?; args: draft(string) 1(int)
+	// level: info, operator: admin1013, SQL: Update product SET `status` = ? WHERE `id` = ?; args: draft(string) 1(int)
 }
 
 type MyLogger struct {
