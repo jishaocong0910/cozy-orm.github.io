@@ -7,9 +7,9 @@ weight: 5
 
 `orm.SQLBuilder`用于动态构建SQL语句和设置参数，提供了以下方法并支持链式调用。
 
-## Write
+## Text
 
-拼接SQL语句和设置参数。
+拼接文本。
 
 *Example*
 
@@ -33,34 +33,34 @@ func main() {
 	db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
 		i := 1
 		sep := " "
-		b.Write("Update user SET")
+		b.Text("Update user SET")
 		if user.Name != nil {
-			b.Write(sep).Write("name = $"+strconv.Itoa(i), user.Name)
+			b.Text(sep).Text("name = $"+strconv.Itoa(i)).Args(user.Name)
 			i++
 			sep = ", "
 		}
 		if user.Email != nil {
-			b.Write(sep).Write("email = $"+strconv.Itoa(i), user.Email)
+			b.Text(sep).Text("email = $"+strconv.Itoa(i)).Args(user.Email)
 			i++
 			sep = ", "
 		}
 		if user.Status != nil {
-			b.Write(sep).Write("status = $"+strconv.Itoa(i), user.Status)
+			b.Text(sep).Text("status = $"+strconv.Itoa(i)).Args(user.Status)
 			i++
 			sep = ", "
 		}
-		b.Write(" WHERE id = $"+strconv.Itoa(i), user.Id)
+		b.Text(" WHERE id = $"+strconv.Itoa(i)).Args(user.Id)
 	}).Do()
 	// 执行SQL：
 	// Update user SET name = $1, email = $2 WHERE id = $3
 	//
-    // 参数：
-    // $1="Alex" $2="alex@example.com" $3=1
+	// 参数：
+	// $1="Alex" $2="alex@example.com" $3=1
 }
 ```
-## WritePh
+## Arg
 
-拼接参数占位符，受[[DB配置]](../../config/db)的配置项`ParamPrefix`影响。
+拼接参数占位符并设置参数，受[[DB配置]](../../config/db)的配置项`ParamPrefix`影响。
 
 *Example*
 
@@ -88,30 +88,30 @@ func main() {
 
 	db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
 		sep := " "
-		b.Write("Update user SET")
+		b.Text("Update user SET")
 		if user.Name != nil {
-			b.Write(sep).Write("name = ").WritePh().AddArgs(user.Name)
+			b.Text(sep).Text("name = ").Arg(user.Name)
 			sep = ", "
 		}
 		if user.Email != nil {
-			b.Write(sep).Write("email = ").WritePh().AddArgs(user.Email)
+			b.Text(sep).Text("email = ").Arg(user.Email)
 			sep = ", "
 		}
 		if user.Status != nil {
-			b.Write(sep).Write("status = ").WritePh().AddArgs(user.Status)
+			b.Text(sep).Text("status = ").Arg(user.Status)
 			sep = ", "
 		}
-		b.Write(" WHERE id = ").WritePh().AddArgs(user.Id)
+		b.Text(" WHERE id = ").Arg(user.Id)
 	}).Do()
 	// 执行SQL：
 	// Update user SET name = $1, email = $2 WHERE id = $3
 	//
-    // 参数：
+	// 参数：
 	// $1="Alex" $2="alex@example.com" $3=1
 }
 ```
 
-## WriteColumn
+## Column
 
 拼接带标识符界定符的字段名，受[[DB配置]](../../config/db)的配置项`IdentifierDelimiter`影响。
 
@@ -129,8 +129,8 @@ func main() {
 	// ...
 
 	db := orm.DBConfig{
-		RawDB:       rawDB,
-		DBType:      orm.DBType_.Postgres, // 自动配置标识符界定符
+		RawDB:  rawDB,
+		DBType: orm.DBType_.Postgres, // 自动配置标识符界定符
 	}.Build()
 
 	user := &User{
@@ -141,38 +141,38 @@ func main() {
 
 	db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
 		sep := " "
-		b.Write("Update user SET")
+		b.Text("Update user SET")
 		if user.Name != nil {
-			b.Write(sep).WriteColumn("name").Write(" = ").WritePh().AddArgs(user.Name)
+			b.Text(sep).Column("name").Text(" = ").Arg(user.Name)
 			sep = ", "
 		}
 		if user.Email != nil {
-			b.Write(sep).WriteColumn("email").Write(" = ").WritePh().AddArgs(user.Email)
+			b.Text(sep).Column("email").Text(" = ").Arg(user.Email)
 			sep = ", "
 		}
 		if user.Status != nil {
-			b.Write(sep).WriteColumn("status").Write(" = ").WritePh().AddArgs(user.Status)
+			b.Text(sep).Column("status").Text(" = ").Arg(user.Status)
 			sep = ", "
 		}
-		b.Write(" WHERE ").WriteColumn("id").Write(" = ").WritePh().AddArgs(user.Id)
+		b.Text(" WHERE ").Column("id").Text(" = ").Arg(user.Id)
 	}).Do()
 	// 执行SQL：
 	// Update user SET "name" = $1, "email" = $2 WHERE "id" = $3
 	//
-    // 参数：
-    // $1="Alex" $2="alex@example.com" $3=1
+	// 参数：
+	// $1="Alex" $2="alex@example.com" $3=1
 }
 ```
 
-## AddArgs
+## Args
 
-添加参数。
+按顺序添加参数。
 
 *Example*
 
 ```go
 db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
-	b.Write("SELECT * FROM user WHERE id = $1 AND status = $2")
+	b.Text("SELECT * FROM user WHERE id = $1 AND status = $2")
 	b.Args(1, 2)
 }).Do()
 ```
@@ -196,27 +196,27 @@ func main() {
 	// ...
 
 	columns := []string{"id", "name", "email"}
-	ids := []int64{1, 2, 3}
+	ids := []int64{101, 102, 103}
 	var status []int8
 
 	db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("SELECT ")
+		b.Text("SELECT ")
 		b.ForEach(b.Sep(", "), columns, func(_ int, item string) {
-			b.Write(item)
+			b.Text(item)
 		})
-		b.Write(" FROM user WHERE id IN")
+		b.Text(" FROM user WHERE id IN")
 		b.ForEach(b.SepWrap("(", ", ", ")"), ids, func(_ int, item int64) {
-			b.Write("?").AddArgs(item)
+			b.Arg(item)
 		})
 		b.ForEach(b.SepWrapOpt("AND status IN(", ", ", " )"), status, func(_ int, item int8) {
-			b.Write("?").AddArgs(item)
+			b.Arg(item)
 		})
 	}).Do()
 	// 执行SQL：
-	// SELECT id, name, email FROM user WHERE id IN(?, ?, ?)
+	// SELECT id, name, email FROM user WHERE id IN($1, $2, $3)
 	//
 	// 参数：
-	// 1 2 3
+	// $1=101 $2=102 $3=103
 }
 ```
 
@@ -235,7 +235,7 @@ type ColumnWriter struct {
 
 func (c ColumnWriter) WriteSQL(b *orm.SQLBuilder) {
 	b.ForEach(b.Sep(", "), c.Columns, func(_ int, item string) {
-		b.Write(item)
+		b.Text(item)
 	})
 }
 
@@ -245,7 +245,7 @@ func main() {
 	columns := ColumnWriter{Columns: []string{"id", "name", "email"}}
 
 	db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("SELECT ").Accept(columns).Write(" FROM user WHERE id = 1")
+		b.Text("SELECT ").Accept(columns).Text(" FROM user WHERE id = 1")
 	}).Do()
 	// 执行SQL：
 	// SELECT id, name, email FROM user WHERE id = 1
@@ -269,9 +269,9 @@ func main() {
 			b.Cancel()
 			return
 		}
-		b.Write("SELECT id, name, email FROM user WHERE id IN")
+		b.Text("SELECT id, name, email FROM user WHERE id IN")
 		b.ForEach(b.SepWrap("(", ",", ")"), ids, func(_ int, item int64) {
-			b.WritePh().AddArgs(item)
+			b.Arg(item)
 		})
 	}).Do()
 	// users=[]*User{}, err=nil
@@ -295,9 +295,9 @@ func main() {
 			b.Error(errors.New("ids is empty"))
 			return
 		}
-		b.Write("SELECT id, name, email FROM user WHERE id IN")
+		b.Text("SELECT id, name, email FROM user WHERE id IN")
 		b.ForEach(b.SepWrap("(", ",", ")"), ids, func(_ int, item int64) {
-			b.WritePh().AddArgs(item)
+			b.Text(item)
 		})
 	}).Do()
 	// users=[]*User{}, err="ids is empty"

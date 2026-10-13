@@ -79,8 +79,8 @@ func main() {
 		CreateAt:  new(time.Now()),
 	}
 	affected, err := db.Mutation(nil).MapTo[User](u).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("INSERT INTO user(name, email, phone, avatar_url, address, status, level, create_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-			u.Name, u.Email, u.Phone, u.AvatarUrl, u.Address, u.Status, u.Level, u.CreateAt)
+		b.Text("INSERT INTO user(name, email, phone, avatar_url, address, status, level, create_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)")
+		b.Args(u.Name, u.Email, u.Phone, u.AvatarUrl, u.Address, u.Status, u.Level, u.CreateAt)
 	}).Do()
 	if err != nil {
 		panic(err)
@@ -89,7 +89,7 @@ func main() {
 
 	// query
 	u2, err := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("SELECT * FROM user WHERE id = ?", u.Id)
+		b.Text("SELECT * FROM user WHERE id = ?").Args(u.Id)
 	}).Do()
 	if err != nil {
 		panic(err)
@@ -99,7 +99,7 @@ func main() {
 
 	// update
 	affected, err = db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("UPDATE user SET status = ?, level = ? WHERE id = ?", 2, 1, u.Id)
+		b.Text("UPDATE user SET status = ?, level = ? WHERE id = ?").Args(2, 1, u.Id)
 	}).Do()
 	if err != nil {
 		panic(err)
@@ -108,7 +108,7 @@ func main() {
 
 	// delete
 	affected, err = db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("DELETE FROM user WHERE id = ?", u.Id)
+		b.Text("DELETE FROM user WHERE id = ?").Args(u.Id)
 	}).Do()
 	if err != nil {
 		panic(err)

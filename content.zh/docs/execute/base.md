@@ -21,7 +21,7 @@ weight: 3
 
 ```go
 users, _ := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
-	b.Write("SELECT id, name, email FROM user WHERE id = 1")
+	b.Text("SELECT id, name, email FROM user WHERE id = 1")
 }).Do()
 ```
 
@@ -39,7 +39,7 @@ users, _ := db.Query[User](nil).BuildSql(func(b *orm.SQLBuilder) {
 
 ```go   
 affected, _ := db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
-	b.Write("UPDATE user SET name = 'Alice' WHERE id = 1")
+	b.Text("UPDATE user SET name = 'Alice' WHERE id = 1")
 }).Do()
 ```
 
@@ -71,9 +71,9 @@ func main() {
 	}
 
 	db.Mutation(nil).MapTo(users...).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("INSERT INTO user(name, email) VALUES(?, ?), (?, ?), (?, ?)")
+		b.Text("INSERT INTO user(name, email) VALUES(?, ?), (?, ?), (?, ?)")
 		for _, user := range users {
-			b.AddArgs(user.Name, user.Email)
+			b.Args(user.Name, user.Email)
 		}
 	}).Do()
 
@@ -145,9 +145,9 @@ func main() {
 	}
 
 	db.Query[User](nil).MapTo(users...).BuildSql(func(b *orm.SQLBuilder) {
-		b.Write("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id")
+		b.Text("INSERT INTO user(name, email) VALUES($1, $2), ($3, $4), ($5, $6) RETURNING id")
 		for _, user := range users {
-			b.AddArgs(user.Name, user.Email)
+			b.Args(user.Name, user.Email)
 		}
 	}).Do()
 
