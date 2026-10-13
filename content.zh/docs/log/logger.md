@@ -24,10 +24,10 @@ func main() {
 
 	db.Mutation(ctx).Must().BuildSql(func(b *orm.SQLBuilder) {
 		b.Text("Update product SET ").Column("status").Text(" = ").Arg("draft")
-		b.Text(" WHERE id = ").Arg(1)
+		b.Text(" WHERE ").Column("id").Text(" = ").Arg(1)
 	}).Do()
 	// 打印日志:
-	// level: info, operator: admin1013, msg: SQL: Update product SET `status` = ? WHERE id = ?; args: draft(string) 1(int)
+	// level: info, operator: admin1013, msg: SQL: Update product SET `status` = ? WHERE `id` = ?; args: draft(string) 1(int)
 }
 
 type MyLogger struct {
