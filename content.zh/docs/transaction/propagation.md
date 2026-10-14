@@ -1,5 +1,5 @@
 ---
-title: 传播机制
+title: 事务传播
 weight: 2
 ---
 
