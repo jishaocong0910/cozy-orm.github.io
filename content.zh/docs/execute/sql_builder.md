@@ -58,6 +58,64 @@ func main() {
 	// $1="Alex" $2="alex@example.com" $3=1
 }
 ```
+
+## Quoted
+
+拼接引用标识符，受[[DB配置]](../../config/db)的配置项`IdentifierDelimiter`影响。
+
+*Example*
+
+```go
+type User struct {
+	Id     *int64
+	Name   *string
+	Email  *string
+	Status *int8
+}
+
+func main() {
+	// ...
+	
+	db := orm.DBConfig{
+		RawDB:  rawDB,
+		DBType: orm.DBType_.Postgres,
+	}.Build()
+
+	user := &User{
+		Id:    new(int64(1)),
+		Name:  new("Alex"),
+		Email: new("alex@example.com"),
+	}
+
+	db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
+		i := 1
+		sep := " "
+		b.Text("Update ").Quoted("user").Text(" SET")
+		if user.Name != nil {
+			b.Text(sep).Quoted("name").Text(" = $" + strconv.Itoa(i)).Args(user.Name)
+			i++
+			sep = ", "
+		}
+		if user.Email != nil {
+			b.Text(sep).Quoted("email").Text(" = $" + strconv.Itoa(i)).Args(user.Email)
+			i++
+			sep = ", "
+		}
+		if user.Status != nil {
+			b.Text(sep).Quoted("status").Text(" = $" + strconv.Itoa(i)).Args(user.Status)
+			i++
+			sep = ", "
+		}
+		b.Text(" WHERE ").Quoted("id").Text(" = $" + strconv.Itoa(i)).Args(user.Id)
+	}).Do()
+	// 执行SQL：
+	// Update "user" SET "name" = $1, "email" = $2 WHERE "id" = $3
+	//
+	// 参数：
+	// $1="Alex" $2="alex@example.com" $3=1
+}
+```
+
 ## Arg
 
 拼接参数占位符并设置参数，受[[DB配置]](../../config/db)的配置项`ParamPrefix`影响。
@@ -74,10 +132,10 @@ type User struct {
 
 func main() {
 	// ...
-
+	
 	db := orm.DBConfig{
 		RawDB:  rawDB,
-		DBType: orm.DBType_.Postgres, // 自动配置参数占位符前缀
+		DBType: orm.DBType_.Postgres,
 	}.Build()
 
 	user := &User{
@@ -88,76 +146,23 @@ func main() {
 
 	db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
 		sep := " "
-		b.Text("Update user SET")
+		b.Text("Update ").Quoted("user").Text(" SET")
 		if user.Name != nil {
-			b.Text(sep).Text("name = ").Arg(user.Name)
+			b.Text(sep).Quoted("name").Text(" = ").Arg(user.Name)
 			sep = ", "
 		}
 		if user.Email != nil {
-			b.Text(sep).Text("email = ").Arg(user.Email)
+			b.Text(sep).Quoted("email").Text(" = ").Arg(user.Email)
 			sep = ", "
 		}
 		if user.Status != nil {
-			b.Text(sep).Text("status = ").Arg(user.Status)
+			b.Text(sep).Quoted("status").Text(" = ").Arg(user.Status)
 			sep = ", "
 		}
-		b.Text(" WHERE id = ").Arg(user.Id)
+		b.Text(" WHERE ").Quoted("id").Text(" = ").Arg(user.Id)
 	}).Do()
 	// 执行SQL：
-	// Update user SET name = $1, email = $2 WHERE id = $3
-	//
-	// 参数：
-	// $1="Alex" $2="alex@example.com" $3=1
-}
-```
-
-## Column
-
-拼接带标识符界定符的字段名，受[[DB配置]](../../config/db)的配置项`IdentifierDelimiter`影响。
-
-*Example*
-
-```go
-type User struct {
-	Id     *int64
-	Name   *string
-	Email  *string
-	Status *int8
-}
-
-func main() {
-	// ...
-
-	db := orm.DBConfig{
-		RawDB:  rawDB,
-		DBType: orm.DBType_.Postgres, // 自动配置标识符界定符
-	}.Build()
-
-	user := &User{
-		Id:    new(int64(1)),
-		Name:  new("Alex"),
-		Email: new("alex@example.com"),
-	}
-
-	db.Mutation(nil).BuildSql(func(b *orm.SQLBuilder) {
-		sep := " "
-		b.Text("Update user SET")
-		if user.Name != nil {
-			b.Text(sep).Column("name").Text(" = ").Arg(user.Name)
-			sep = ", "
-		}
-		if user.Email != nil {
-			b.Text(sep).Column("email").Text(" = ").Arg(user.Email)
-			sep = ", "
-		}
-		if user.Status != nil {
-			b.Text(sep).Column("status").Text(" = ").Arg(user.Status)
-			sep = ", "
-		}
-		b.Text(" WHERE ").Column("id").Text(" = ").Arg(user.Id)
-	}).Do()
-	// 执行SQL：
-	// Update user SET "name" = $1, "email" = $2 WHERE "id" = $3
+	// Update "user" SET "name" = $1, "email" = $2 WHERE "id" = $3
 	//
 	// 参数：
 	// $1="Alex" $2="alex@example.com" $3=1
@@ -166,7 +171,7 @@ func main() {
 
 ## Args
 
-按顺序添加参数。
+添加参数。
 
 *Example*
 
