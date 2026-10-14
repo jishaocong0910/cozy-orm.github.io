@@ -13,6 +13,13 @@
 - **预定义实体**：用于查询少量字段场景下进行动态映射。
 - **代码生成**：提供多种常用数据库的实体代码生成器。
 
-## 版本要求
+## 已测试驱动
 
-* Go1.27或以上版本
+- github.com/go-sql-driver/mysql
+- github.com/sijms/go-ora/v2
+- github.com/godror/godror
+- github.com/jackc/pgx/v5
+- github.com/lib/pq
+- github.com/microsoft/go-mssqldb
+- modernc.org/sqlite
+- github.com/mattn/go-sqlite3
