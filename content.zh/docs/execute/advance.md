@@ -84,7 +84,7 @@ func main() {
 
 	db := orm.DBConfig{
 		RawDB:       rawDB,
-		DBType:      orm.DBType_.Postgres, //自动配置获取生成Key模式
+		DBType:      orm.DBType_.PostgreSQL, //自动配置获取生成Key模式
 	}.Build()
 
 	user := &User{Name: new("Alex")}

@@ -78,7 +78,7 @@ func main() {
 	
 	db := orm.DBConfig{
 		RawDB:  rawDB,
-		DBType: orm.DBType_.Postgres,
+		DBType: orm.DBType_.PostgreSQL,
 	}.Build()
 
 	user := &User{
@@ -135,7 +135,7 @@ func main() {
 	
 	db := orm.DBConfig{
 		RawDB:  rawDB,
-		DBType: orm.DBType_.Postgres,
+		DBType: orm.DBType_.PostgreSQL,
 	}.Build()
 
 	user := &User{
