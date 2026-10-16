@@ -17,7 +17,7 @@ func main() {
 		RawDB:       rawDB,
 		DBType:      orm.DBType_.MySQL,
 		Logger:      myLogger{},
-		SqlLogLevel: orm.Level_.Info,
+		SqlLogLevel: orm.LogLevel_.Info,
 	}.Build()
 
 	ctx := context.WithValue(context.Background(), "operator", "admin1013")
