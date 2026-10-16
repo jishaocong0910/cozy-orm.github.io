@@ -23,24 +23,23 @@ import (
 
 	orm "github.com/jishaocong0910/cozy-orm"
 	gen "github.com/jishaocong0910/cozy-orm-gen"
-	"github.com/shopspring/decimal"
+	
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func main() {
-	db, err := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
+	db, err := sql.Open("pgx", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
-	
+
 	gen.Config{
-		DB:           db,
-		DBType:       orm.DBType_.MySQL,
-		FilePath:     "repo/entity",
-		Tables:       []string{"user", "product", "order"},
-		TypeMappings: gen.Mapping[decimal.Decimal]("decimal"),
+		DB:       db,
+		DBType:   orm.DBType_.MySQL,
+		FilePath: "repo/entity",
+		Tables:   []string{"user", "order"},
 	}.Gen()
 }
-
 ```
 
 ## 配置项
@@ -64,4 +63,43 @@ func main() {
 
 默认情况下，生成的实体字段是Go内置类型。在Go内置类型不满足业务的场景下，可以在生成实体后手动修改实体字段的类型，也可以配置生成器的`TypeMappings`配置项，将指定的数据库类型映射到自定义或第三方类型。
 
-通过`gen.Mapping[T](columnType string)`创建，可链式调用指定多个映射规则，按照顺序匹配。泛型`T`为实体字段类型，必须满足[[字段类型]](../field_type)要求，为了方便，允许指针写成值类型。`columnType`参数为数据库字段类型，格式为`<data_type>[(<parameter_list>)]`，参数列表分隔符为`,`或空格，通配符`#`表示单个任意值，例子：`int`、`decimal(#, 2)`、`VARCHAR2(100 CHAR)`、`VARCHAR2(100 BYTE)`。
+通过`gen.TypeMapping[T](columnType string)`创建类型映射规则，可创建多个，生成器将按照顺序匹配。泛型`T`为实体字段类型，必须满足[[字段类型]](../field_type)要求，为了方便，允许指针写成值类型。`columnType`参数为数据库字段类型，格式为`<data_type>[(<parameter_list>)]`，参数间分隔符为`,`或空格，通配符`#`表示单个任意值。
+
+*Example*
+
+```go
+package main
+
+import (
+	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	orm "github.com/jishaocong0910/cozy-orm"
+	gen "github.com/jishaocong0910/cozy-orm-gen"
+	"github.com/shopspring/decimal"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+)
+
+func main() {
+	db, err := sql.Open("pgx", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	if err != nil {
+		panic(err)
+	}
+
+	gen.Config{
+		DB:     db,
+		DBType: orm.DBType_.MySQL,
+		Tables: []string{"user", "order"},
+		// 按照顺序匹配
+		TypeMappings: gen.TypeMappings{
+			// 整数numeric映射为*int64
+			gen.NewTypeMapping[int64]("numeric(#,0)"), // 或numeric(#)
+			// 将任意参数的numeric映射为github.com/shopspring/decimal库的*decimal.Decimal类型
+			gen.NewTypeMapping[decimal.Decimal]("numeric(#, #)"),
+			// time类型映射为pgx驱动的*pgtype.Time类型
+			gen.NewTypeMapping[pgtype.Time]("time"),
+		},
+	}.Gen()
+}
+```
