@@ -63,7 +63,7 @@ func main() {
 
 默认情况下，生成的实体字段是Go内置类型。在Go内置类型不满足业务的场景下，可以在生成实体后手动修改实体字段的类型，也可以配置生成器的`TypeMappings`配置项，将指定的数据库类型映射到自定义或第三方类型。
 
-通过`gen.TypeMapping[T](columnType string)`创建类型映射规则，可创建多个，生成器将按照顺序匹配。泛型`T`为实体字段类型，必须满足[[字段类型]](../field_type)要求，为了方便，允许指针写成值类型。`columnType`参数为数据库字段类型，格式为`<data_type>[(<parameter_list>)]`，参数间分隔符为`,`或空格，通配符`#`表示单个任意值。
+通过`gen.NewTypeMapping[T](columnType string)`创建类型映射规则，生成器将按照顺序匹配。泛型`T`为实体字段类型，必须满足[[字段类型]](../field_type)要求，为了方便，允许指针写成值类型。`columnType`参数为数据库字段类型，格式为`<data_type>[(<parameter_list>)]`，参数间分隔符为`,`或空格，通配符`#`表示单个任意值。
 
 *Example*
 
@@ -93,13 +93,20 @@ func main() {
 		Tables: []string{"user", "order"},
 		// 按照顺序匹配
 		TypeMappings: gen.TypeMappings{
-			// 整数numeric映射为*int64
-			gen.NewTypeMapping[int64]("numeric(#,0)"), // 或numeric(#)
-			// 将任意参数的numeric映射为github.com/shopspring/decimal库的*decimal.Decimal类型
-			gen.NewTypeMapping[decimal.Decimal]("numeric(#, #)"),
-			// time类型映射为pgx驱动的*pgtype.Time类型
-			gen.NewTypeMapping[pgtype.Time]("time"),
+			// 整数的NUMERIC映射为*int64
+			gen.NewTypeMapping[int64]("NUMERIC(#,0)"),
+			// 任意参数的NUMERIC映射为github.com/shopspring/decimal库的*decimal.Decimal类型
+			gen.NewTypeMapping[decimal.Decimal]("NUMERIC(#, #)"),
+			// TIME类型映射为pgx驱动的*pgtype.Time类型
+			gen.NewTypeMapping[pgtype.Time]("TIME"),
 		},
 	}.Gen()
 }
 ```
+
+> [!TIP]
+>
+> 具有精度和小数的数字类型，例如`NUMERIC`、`DECIMAL`和`NUMBER`，小数为0时可省略，精度和小数都为任意时可不写参数，例如：
+>
+> - `DECIMAL(10)`相当于`DECIMAL(10,0)`
+> - `DECIMAL`相当于`DECIMAL(#,#)`
