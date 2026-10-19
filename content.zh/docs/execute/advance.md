@@ -33,7 +33,7 @@ type User struct {
 func main() {
 	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL, //自动配置分页模式
 	}.Build()
@@ -82,7 +82,7 @@ type User struct {
 func main() {
 	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:       rawDB,
 		DBType:      orm.DBType_.PostgreSQL, //自动配置获取生成Key模式
 	}.Build()
@@ -143,7 +143,7 @@ type User struct {
 func main() {
 	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 	}.Build()
@@ -193,7 +193,7 @@ type User struct {
 func main() {
 	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 	}.Build()
@@ -284,7 +284,7 @@ type User struct {
 func main() {
 	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:       rawDB,
 		DBType:      orm.DBType_.MySQL,
 		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{

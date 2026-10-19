@@ -7,7 +7,7 @@ weight: 2
 
 ## 配置项
 
-`orm.DBConfig`的字段为DB实例的配置项。
+`orm.Config`的字段为DB实例的配置项。
 
 | 配置项              | 类型                      | 描述                                                                                                                                                                                                              |
 |---------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -93,7 +93,7 @@ type UserProfile struct {
 func main() {
 	// ...
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:         rawDB,
 		DBType:        orm.DBType_.MySQL,
 		TabNameMapper: orm.NewNameMapper().LowerSnakeCase().AddPrefix("tb_"),

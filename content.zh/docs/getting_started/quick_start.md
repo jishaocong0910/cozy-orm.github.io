@@ -62,7 +62,7 @@ func main() {
 	}
 
 	// create an orm.DB instance
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 	}.Build()
@@ -168,7 +168,7 @@ func main() {
 	}
 
 	// create an orm.DB instance
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 	}.Build()

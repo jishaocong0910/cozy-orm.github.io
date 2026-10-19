@@ -40,7 +40,7 @@ weight: 3
 *Example*
 
 ```go
-db := orm.DBConfig{
+db := orm.Config{
 	RawDB:  rawDB,
 	DBType: orm.DBType_.MySQL,
 	ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
@@ -81,7 +81,7 @@ db := orm.DBConfig{
 *Example*
 
 ```go
-db := orm.DBConfig{
+db := orm.Config{
 	RawDB:  rawDB,
 	DBType: orm.DBType_.MySQL,
 	ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
@@ -121,7 +121,7 @@ type User struct {
 func main() {
 	// ...
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{
@@ -181,7 +181,7 @@ type User struct {
 func main() {
 	// ...
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:  rawDB,
 		DBType: orm.DBType_.MySQL,
 		ColumnPolicyConfigs: orm.ColumnPolicyConfigs{

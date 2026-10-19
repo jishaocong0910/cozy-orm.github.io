@@ -59,7 +59,7 @@ type User struct {
 func main() {
 	rawDB, _ := sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:               rawDB,
 		GetGeneratedKeyMode: orm.GetGeneratedKeyMode_.FirstInsertId,
 	}.Build()
@@ -134,7 +134,7 @@ type User struct {
 func main() {
 	rawDB, _ := sql.Open("postgres", "postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB: rawDB,
 	}.Build()
 
