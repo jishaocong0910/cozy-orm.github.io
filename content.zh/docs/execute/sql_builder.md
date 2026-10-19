@@ -76,7 +76,7 @@ type User struct {
 func main() {
 	// ...
 	
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:  rawDB,
 		DBType: orm.DBType_.PostgreSQL,
 	}.Build()
@@ -133,7 +133,7 @@ type User struct {
 func main() {
 	// ...
 	
-	db := orm.DBConfig{
+	db := orm.Config{
 		RawDB:  rawDB,
 		DBType: orm.DBType_.PostgreSQL,
 	}.Build()

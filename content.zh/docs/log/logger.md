@@ -5,7 +5,7 @@ weight: 1
 
 # 日志纪录器
 
-实现`orm.Logger`并配置`orm.DBConfig.Logger`即可打印日志。
+实现`orm.Logger`并配置`orm.Config.Logger`即可打印日志。
 
 *Example*
 
@@ -13,7 +13,7 @@ weight: 1
 func main() {
 	// ...
 
-	db = orm.DBConfig{
+	db = orm.Config{
 		RawDB:       rawDB,
 		DBType:      orm.DBType_.MySQL,
 		Logger:      myLogger{},

@@ -5,7 +5,7 @@ weight: 1
 
 ## 创建实例
 
-`orm.DB`是一个数据库操作实例，称为DB实例，用于连接数据库并提供数据库操作方法。DB实例通过`orm.DBConfig`配置后调用`Build`方法创建。
+`orm.DB`是一个数据库操作实例，称为DB实例，用于连接数据库并提供数据库操作方法。DB实例通过`orm.Config`配置后调用`Build`方法创建。
 
 *Example*
 
@@ -17,7 +17,7 @@ if err != nil {
 }
 
 // create a orm.DB instance
-db := orm.DBConfig{
+db := orm.Config{
 	RawDB:  rawDB,
 	DBType: orm.DBType_.MySQL,
 }.Build()
