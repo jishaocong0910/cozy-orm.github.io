@@ -16,8 +16,8 @@
 ## 已测试驱动
 
 - ✅ github.com/go-sql-driver/mysql
--  github.com/sijms/go-ora/v2
-- github.com/godror/godror
+- ✅ github.com/sijms/go-ora/v2
+- ✅ github.com/godror/godror
 - ✅ github.com/jackc/pgx/v5
 - ✅ github.com/lib/pq
 - ✅ github.com/microsoft/go-mssqldb
