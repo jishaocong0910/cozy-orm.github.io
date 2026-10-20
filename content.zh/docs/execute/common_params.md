@@ -13,7 +13,7 @@ weight: 2
 |--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `Must()`                 | 默认会将错误返回，此参数会直接panic。                                                                                                                          |
 | `Description(string)`    | 用于描述SQL业务，打印在SQL日志里。                                                                                                                             |
-| `SqlLogLevel(orm.Level)` | 指定SQL日志的级别。通过[[枚举]](../../config/db#枚举)`orm.LogLevel_`选择，优先级高于[[DB配置]](../../config/db)。指定为`orm.Level_.UNDEFINED`可以关闭SQL日志。 |
+| `SqlLogLevel(orm.Level)` | 指定SQL日志的级别。通过[[枚举]](../../db_instance/config/#枚举)`orm.LogLevel_`选择，优先级高于DB实例配置。指定为`orm.Level_.UNDEFINED`可以关闭SQL日志。 |
 
 *Example*
 

@@ -61,7 +61,7 @@ func main() {
 
 ## Quoted
 
-拼接引用标识符，受[[DB配置]](../../config/db)的配置项`IdentifierDelimiter`影响。
+拼接引用标识符，受DB实例配置的配置项`IdentifierDelimiter`影响。
 
 *Example*
 
@@ -118,7 +118,7 @@ func main() {
 
 ## Arg
 
-拼接参数占位符并设置参数，受[[DB配置]](../../config/db)的配置项`ParamPrefix`影响。
+拼接参数占位符并设置参数，受DB实例配置的配置项`ParamPrefix`影响。
 
 *Example*
 

@@ -49,7 +49,7 @@ func main() {
 | 配置项           | 类型                  | 描述                                                                                                                     |
 |------------------|-----------------------|--------------------------------------------------------------------------------------------------------------------------|
 | DB               | `*sql.DB`             | 数据库连接池，必填。                                                                                                     |
-| DBType           | `orm.DBType`          | 数据库类型，通过[[枚举]](../../config/db#枚举)`orm.DBType_`选择，当前支持MySQL、PostgreSQL、Oracle、SQL Server、SQLite。 |
+| DBType           | `orm.DBType`          | 数据库类型，通过[[枚举]](../../db_instance/config/#枚举)`orm.DBType_`选择，当前支持MySQL、PostgreSQL、Oracle、SQL Server、SQLite。 |
 | FilePath         | `string`              | 输出文件路径，它是`os.Getwd()`的相对路径，为空时使用默认值`entity`。                                                     |
 | CoverFile        | `bool`                | 是否覆盖已有文件                                                                                                         |
 | OmitNameTag      | `bool`                | 不添加`table`和`column`标签。                                                                                            |

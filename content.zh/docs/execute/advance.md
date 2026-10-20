@@ -17,7 +17,7 @@ weight: 4
 | `OnDemand(*orm.Demand)`           | 按需指定查询的表字段，详见[[按需字段]](#按需字段)。                 |
 | `Cond(func(c *orm.Cond))`         | 查询处理函数，使用参数`c`拼接条件，详见[[查询条件]](../condition)。 |
 | `OrderBy(func(o *orm.OrderBy))`   | 排序处理函数，使用参数`o`变量拼接排序规则。                         |
-| `Page(offset int, rowCount int) ` | 分页，需配置[[分页模式]](../../config/db#分页模式)。                |
+| `Page(offset int, rowCount int) ` | 分页，需配置[[分页模式]](../../db_instance/config/#分页模式)。                |
 | `IncludeDeleted()`                | 包含软删除的数据（启用软删除模式时使用）。                          |
 | `LastClause(string)`              | SQL末尾的子句，例如`FOR UPDATE`。                                   |
 | `Do() ([]*E, error)`              | 执行并返回多个实体。                                                |
@@ -61,7 +61,7 @@ func main() {
 
 ## Insert
 
-`Insert`执行器通过方法`orm.DB.Insert[E]`创建，用于插入记录。还可以将生成的Key映射回实体中带`auto`[[标签]](../../entity/tag)的字段，该功能必须配置[[获取生成Key模式]](../../config/db/#获取生成key模式)，其中对于`Oracle`模式限制单次插入的实体不能1000个。
+`Insert`执行器通过方法`orm.DB.Insert[E]`创建，用于插入记录。还可以将生成的Key映射回实体中带`auto`[[标签]](../../entity/tag)的字段，该功能必须配置[[获取生成Key模式]](../../db_instance/config/#获取生成key模式)，其中对于`Oracle`模式限制单次插入的实体不能1000个。
 
 | 参数                  | 描述                                                                           |
 |-----------------------|--------------------------------------------------------------------------------|
