@@ -21,5 +21,5 @@
 - ✅ github.com/jackc/pgx/v5
 - ✅ github.com/lib/pq
 - ✅ github.com/microsoft/go-mssqldb
-- modernc.org/sqlite
-- github.com/mattn/go-sqlite3
+- ✅ modernc.org/sqlite
+- ✅ github.com/mattn/go-sqlite3
