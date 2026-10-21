@@ -5,11 +5,11 @@ weight: 2
 
 # 配置
 
-## 配置项
+## 配置参数
 
-`orm.Config`的字段为DB实例的配置项。
+`orm.Config`的字段为DB实例的配置参数。
 
-| 配置项              | 类型                      | 描述                                                                                                                                                                                                                                                                 |
+| 配置参数            | 类型                      | 描述                                                                                                                                                                                                                                                                 |
 |---------------------|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | RawDB               | `*sql.DB`                 | 数据库连接池，必填。                                                                                                                                                                                                                                                 |
 | Logger              | `orm.Logger`              | 日志记录器，用于打印SQL等日志，详见[[日志记录器]](../../log/logger)。                                                                                                                                                                                                |
@@ -18,14 +18,14 @@ weight: 2
 | ColNameMapper       | `*orm.NameMapper`         | 默认的**实体字段名->表字段名**映射规则，默认为转小写下划线，见[[名称映射]](#名称映射)。                                                                                                                                                                              |
 | DBType              | `orm.DBType`              | 数据库类型，指定后将自动适配`ParamPrefix`、&#8203;`GetGeneratedKeyMode`、&#8203;`PageMode`和`IdentifierDelimiter`参数。通过枚举`orm.DBType_`选择，当前支持MySQL、PostgreSQL、Oracle、SQL Server、SQLite。对于Oracle，会同时设置`TabNameMapper`默认值为转大写下划线。 |
 | ParamPrefix         | `string`                  | 参数占位符前缀。若为空字符串则参数占位符号为`?`，否则为前缀拼接从`1`开始的递增数字。例如，若前缀为`:`，则参数占位符为`:1`、`:2`、`:3`...，若前缀为`$`，则为`$1`、`$2`、`$3` ...。可通过指定`DBType`参数快速配置。                                                    |
-| GetGeneratedKeyMode | `orm.GetGeneratedKeyMode` | 获取生成Key模式。通过枚举`orm.GetGeneratedKeyMode_`选择（见[[获取生成Key模式]](#获取生成key模式)）。可通过指定`DBType`参数快速配置。                                                                                                                                 |
+| GetGeneratedKeyMode | `orm.GetGeneratedKeyMode` | 获取生成Key模式。通过枚举`orm.GetGeneratedKeyMode_`选择，见[[获取生成Key模式]](#获取生成key模式)。可通过指定`DBType`参数快速配置。                                                                                                                                   |
 | PageMode            | `orm.PageMode`            | 分页模式。通过枚举`orm.PageMode_`选择（见[[分页模式]](#分页模式)）。可通过指定`DBType`参数快速配置。                                                                                                                                                                 |
-| IdentifierDelimiter | `orm.IdentifierDelimiter` | 标识符界定符。通过枚举`orm.IdentifierDelimiter_`选择（见[[标识符界定符]](#标识符界定符)）。可通过指定`DBType`参数快速配置。                                                                                                                                          |
+| IdentifierDelimiter | `orm.IdentifierDelimiter` | 标识符界定符。通过枚举`orm.IdentifierDelimiter_`选择，见[[标识符界定符]](#标识符界定符)。可通过指定`DBType`参数快速配置。                                                                                                                                            |
 | ColumnPolicyConfigs | `orm.ColumnPolicyConfigs` | 字段策略配置，详见[[字段策略]](../column_policy)。                                                                                                                                                                                                                   |
 
 ## 枚举
 
-CozyORM中以下划线结尾的全局变量为枚举。通过`.`获取枚举选项，例如`orm.DBType_.MySQL`。
+CozyORM中以下划线结尾的全局变量为枚举，通过`<enum>.<option>`选择枚举选项，例如`orm.DBType_.MySQL`。
 
 > [!TIP]
 >
@@ -33,17 +33,17 @@ CozyORM中以下划线结尾的全局变量为枚举。通过`.`获取枚举选�
 
 ## 获取生成Key模式
 
-获取生成Key，即获取插入记录中自动递增或序列生成的字段值。不同数据库方式各异，需根据其特性选择适配的模式，并且在实体中需对生成的字段添加`auto`[[标签]](../../entity/tag)。
+获取生成Key，即获取插入记录中自动递增或序列生成的字段值，不同数据库方式各异。根据数据库特性选择适配的模式，并在实体中对自动生成的字段添加`auto`[[标签]](../../entity/tag)，即可在插入记录后将字段值注入到实体中。
 
 `orm.GetGeneratedKeyMode_`有以下选项，其中基础执行器`Mutation`只支持`FirstInsertId`和`LastInsertId`，高级执行器`Insert`支持所有。
 
-| 选项            | 描述                                                                                                                                    |
-|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| FirstInsertId   | 将`sql.Result.LastInsertId()`的返回值作为第一个插入记录的ID，可适配MySQL。                                                              |
-| LastInsertId    | 将`sql.Result.LastInsertId()`的返回值作为最后一个插入记录的ID，可适配SQLite。                                                           |
-| InsertReturning | 通过语法`INSERT ... RETURNING ...`返回自动生成Key，可适配PostgreSQL、SQLite。                                                           |
-| SQLServer       | 通过SQL Server方言`INSERT ... OUTPUT ...`返回自动生成Key，专门适配SQL Server。                                                          |
-| Oracle          | 通过Oracle的方言`INSERT ... RETURNING ... INTO ...`返回自动生成Key，专门适配Oracle，只能作用于被`GENERATED ... AS IDENTITY`修饰的字段。 |
+| 选项            | 描述                                                                                                                                                                        |
+|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| FirstInsertId   | 将`sql.Result.LastInsertId()`的返回值作为第一个插入记录的ID，可适配MySQL。                                                                                                  |
+| LastInsertId    | 将`sql.Result.LastInsertId()`的返回值作为最后一个插入记录的ID，可适配SQLite。                                                                                               |
+| InsertReturning | 通过语法`INSERT ... RETURNING ...`返回生成的Key，可适配PostgreSQL、SQLite。                                                                                                 |
+| SQLServer       | 通过SQL Server方言`INSERT ... OUTPUT ...`返回生成的Key，专门适配SQL Server。                                                                                                |
+| Oracle          | 通过Oracle的方言`INSERT ... RETURNING ... INTO ...`返回生成的Key，专门适配Oracle，只支持被{{<html>}}<code>GENERATED&nbsp;...&nbsp;AS IDENTITY</code>{{</html>}}修饰的字段。 |
 
 ## 分页模式
 

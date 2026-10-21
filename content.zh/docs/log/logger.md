@@ -5,7 +5,7 @@ weight: 1
 
 # 日志纪录器
 
-实现`orm.Logger`并配置`orm.Config.Logger`即可打印日志。
+实现`orm.Logger`并配置`orm.Config`的`Logger`和`SqlLogLevel`参数即可打印日志。
 
 *Example*
 
@@ -23,11 +23,10 @@ func main() {
 	ctx := context.WithValue(context.Background(), "operator", "admin1013")
 
 	db.Mutation(ctx).Must().Description("update product").BuildSql(func(b *orm.SQLBuilder) {
-		b.Text("Update ").Quoted("product").Text(" SET ").Quoted("status").Text(" = ").Arg("draft")
-		b.Text(" WHERE ").Quoted("id").Text(" = ").Arg(1)
+		b.Text("Update product SET status = ").Arg("draft").Text(" WHERE id = ").Arg(1)
 	}).Do()
 	// 打印日志:
-	// level: info, operator: admin1013, desc: update product, SQL: Update `product` SET `status` = ? WHERE `id` = ?; args: draft(string) 1(int), affected: 1, cost: 20ms
+	// level: info, operator: admin1013, desc: update product, SQL: Update product SET status = ? WHERE id = ?; args: draft(string) 1(int), affected: 1, cost: 20ms
 }
 
 type myLogger struct {
