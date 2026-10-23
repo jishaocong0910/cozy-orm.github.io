@@ -117,17 +117,17 @@ func main() {
 
 `Update`执行器通过方法`orm.DB.Update[E]`创建，用于更新记录。如果配置了[软删除模式](../../config/column_policy#软删除模式)，会自动添加正常（未删除）数据的过滤条件。
 
-| 参数                      | 描述                                                                                                   |
-|---------------------------|--------------------------------------------------------------------------------------------------------|
+| 参数                      | 描述                                                                                                 |
+|---------------------------|------------------------------------------------------------------------------------------------------|
 | `Entity(*E)`              | 更新的实体，只会更新非`nil`字段，带`pk`[标签](../../entity/tag)的字段例外，非`nil`时会自动作为条件。 |
-| `Required(...string)`     | 必定会更新的字段，若值为`nil`，则插入`null`。                                                          |
-| `OnDemand(*orm.Demand)`   | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                    |
-| `Set(string, any)`        | 设置字段的更新值。                                                                                     |
-| `SetExpr(string, string)` | 设置字段更新为指定的表达式。                                                                           |
-| `Cond(func(c *orm.Cond))` | 查询处理函数，使用参数`c`拼接条件，详见[[查询条件]](../condition)。                                    |
-| `IncludeDeleted()`        | 包含软删除的数据（启用软删除模式时使用）。                                                             |
-| `SkipSafety()`            | 默认会防止全表操作，此参数可跳过该安全检查。                                                           |
-| `Do() (int64, error)`     | 执行并返回影响行数。                                                                                   |
+| `Required(...string)`     | 必定会更新的字段，若值为`nil`，则插入`null`。                                                        |
+| `OnDemand(*orm.Demand)`   | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                  |
+| `Set(string, any)`        | 设置字段的更新值。                                                                                   |
+| `SetExpr(string, string)` | 设置字段更新为指定的表达式。                                                                         |
+| `Cond(func(c *orm.Cond))` | 查询处理函数，使用参数`c`拼接条件，详见[[查询条件]](../condition)。                                  |
+| `IncludeDeleted()`        | 包含软删除的数据（启用软删除模式时使用）。                                                           |
+| `SkipSafety()`            | 默认会防止全表操作，此参数可跳过该安全检查。                                                         |
+| `Do() (int64, error)`     | 执行并返回影响行数。                                                                                 |
 
 *Example*
 
@@ -163,20 +163,20 @@ func main() {
 >
 > 参数及[[字段策略]](../../config/column_policy#字段策略)都会影响字段更新，详见[[更新字段优先级]](#更新字段优先级)。
 
-## UpdateRow
+## updateRows
 
-`UpdateRow`执行器通过方法`orm.DB.UpdateRow[E]`创建，用于按行更新记录，可批量更新。它要求实体`E`必须有且仅有一个带`pk`[标签](../../entity/tag)的字段，并且传入的实体中该字段不能为`nil`。如果配置了[软删除模式](../../config/column_policy#软删除模式)，会自动添加正常（未删除）数据的过滤条件。
+`updateRows`执行器通过方法`orm.DB.updateRows[E]`创建，用于按行更新记录，可批量更新。它要求实体`E`必须有且仅有一个带`pk`[标签](../../entity/tag)的字段，并且传入的实体中该字段不能为`nil`。如果配置了[软删除模式](../../config/column_policy#软删除模式)，会自动添加正常（未删除）数据的过滤条件。
 
-| 参数                                                           | 描述                                                                                                                                           |
-|----------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Entities(... *E)`                                             | 更新的实体，只会更新非`nil`字段，带`pk`[标签](../../entity/tag)的字段例外，会自动作为更新条件，若更新多个实体，则以首个实体的非nil字段为准。 |
-| `Required(...string)`                                          | 必定会更新的字段，若值为`nil`，则插入`null`。                                                                                                  |
-| `OnDemand(*orm.Demand)`                                        | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                                                            |
-| `Set(string, any)`                                             | 设置字段的更新值。                                                                                                                             |
-| `SetExpr(string, string)`                                      | 设置字段更新为指定的表达式。                                                                                                                   |
-| {{<code>}}Cond(func(c&nbsp;*orm.Cond)){{</code>}} | 查询处理函数，使用参数`c`拼接条件，详见[[查询条件]](../condition)。                                                                            |
-| `IncludeDeleted()`                                             | 包含软删除的数据（启用软删除模式时使用）。                                                                                                     |
-| `Do() (int64, error)`                                          | 执行并返回影响行数。                                                                                                                           |
+| 参数                                              | 描述                                                                                                                                         |
+|---------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `Entities(... *E)`                                | 更新的实体，只会更新非`nil`字段，带`pk`[标签](../../entity/tag)的字段例外，会自动作为更新条件，若更新多个实体，则以首个实体的非nil字段为准。 |
+| `Required(...string)`                             | 必定会更新的字段，若值为`nil`，则插入`null`。                                                                                                |
+| `OnDemand(*orm.Demand)`                           | 按需指定更新的表字段，详见[[按需字段]](#按需字段)。                                                                                          |
+| `Set(string, any)`                                | 设置字段的更新值。                                                                                                                           |
+| `SetExpr(string, string)`                         | 设置字段更新为指定的表达式。                                                                                                                 |
+| {{<code>}}Cond(func(c&nbsp;*orm.Cond)){{</code>}} | 查询处理函数，使用参数`c`拼接条件，详见[[查询条件]](../condition)。                                                                          |
+| `IncludeDeleted()`                                | 包含软删除的数据（启用软删除模式时使用）。                                                                                                   |
+| `Do() (int64, error)`                             | 执行并返回影响行数。                                                                                                                         |
 
 *Example*
 
@@ -213,7 +213,7 @@ func main() {
 		},
 	}
 
-    affected, _ := db.UpdateRow[User](nil).Entities(users...).SetExpr("update_at", "now()").Required("status").
+    affected, _ := db.updateRows[User](nil).Entities(users...).SetExpr("update_at", "now()").Required("status").
 		Cond(func(c *orm.Cond) {
 			c.Eq("status", 1)
 		}).Do()
@@ -412,10 +412,10 @@ func main() {
 
 ## 更新字段优先级
 
-以下字段一定出现在`Update`和`UpdateRow`执行器的更新字段列表中：
+以下字段一定出现在`Update`和`updateRows`执行器的更新字段列表中：
 
 * `OnDemand`参数匹配的字段，`Set`、`SetRaw`参数指定的字段，`Required`参数指定的字段，[[字段策略]](../../config/column_policy#字段策略)命中字段。
-* 未指定`OnDemand`参数时，实体（`Update`的`Entity`参数，`UpdateRow`的`Entities`参数）的非nil字段。
+* 未指定`OnDemand`参数时，实体（`Update`的`Entity`参数，`updateRows`的`Entities`参数）的非nil字段。
 
 字段的赋值优先级按以下顺序：
 

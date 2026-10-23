@@ -21,7 +21,7 @@ weight: 3
     </thead>
     <tbody> 
         <tr>
-            <td rowspan="3">OnInsert/OnUpdate</td><td style="width: 21em;"><code>Value(force bool, batchReuse bool, value func(ctx context.Context) any)</code></td><td>在插入/更新记录时生成字段值。<code>force</code>指定是否强制覆盖生成的值，若为<code>false</code>则仅在插入/更新的值为<code>nil</code>时有效。<code>batchReuse</code>指定是否在批量插入/更新（高级执行器<code>Insert</code>/<code>UpdateRow</code>）时只生成一次并复用，若为<code>false</code>则每行都生成一次。<code>value</code>为字段值的生成函数。</td>
+            <td rowspan="3">OnInsert/OnUpdate</td><td style="width: 21em;"><code>Value(force bool, batchReuse bool, value func(ctx context.Context) any)</code></td><td>在插入/更新记录时生成字段值。<code>force</code>指定是否强制覆盖生成的值，若为<code>false</code>则仅在插入/更新的值为<code>nil</code>时有效。<code>batchReuse</code>指定是否在批量插入/更新（高级执行器<code>Insert</code>/<code>updateRows</code>）时只生成一次并复用，若为<code>false</code>则每行都生成一次。<code>value</code>为字段值的生成函数。</td>
         </tr>
         <tr>
             <td><code>Expr(force bool, batchReuse bool, expr func(ctx context.Context)</code></td><td>与<code>Value</code>方法的区别是，字段值为<code>expr</code>函数返回的原生SQL表达式。</td>
