@@ -1,4 +1,0 @@
----
-title: "Entity"
-bookCollapseSection: true
----

@@ -1,19 +1,16 @@
 baseURL = 'https://example.org/'
-locale = 'en-us'
 title = 'CozyORM'
 theme = 'hugo-book'
 
 [languages]
-[languages.en]
-label = "English"
-contentDir = "content.en"
-weight = 1
-title = "CozyORM"
 [languages.zh]
 label = "简体中文"
 contentDir = "content.zh"
-weight = 2
-title = "CozyORM"
+weight = 1
+#[languages.en]
+#label = "English"
+#contentDir = "content.en"
+#weight = 2
 
 [params]
 bookToC = true
